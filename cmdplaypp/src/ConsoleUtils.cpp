@@ -3,7 +3,7 @@
 
 void cmdplay::ConsoleUtils::SetCursorPosition(int x, int y)
 {
-	COORD pos = { x, y };
+	COORD pos = { static_cast<short>(x), static_cast<short>(y) };
 	HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
 	SetConsoleCursorPosition(output, pos);
 }

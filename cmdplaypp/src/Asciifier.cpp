@@ -13,7 +13,7 @@ inline char cmdplay::Asciifier::ToChar(uint8_t index)
 
 cmdplay::Asciifier::Asciifier(const std::string& brightnessLevels, int frameWidth, int frameHeight) :
 	m_brightnessLevels(brightnessLevels), m_frameWidth(frameWidth), m_frameHeight(frameHeight),
-	m_brightnessLevelCount(brightnessLevels.length()), m_frameSubpixelCount(frameWidth * frameHeight * 3),
+	m_brightnessLevelCount(static_cast<uint8_t>(brightnessLevels.length())), m_frameSubpixelCount(frameWidth * frameHeight * 3),
 	m_targetFramebufferSize((m_frameWidth + 1) * m_frameHeight)
 {
 	

@@ -27,7 +27,7 @@ void cmdplay::VideoPlayer::Enter()
 			continue;
 
 		while (nextFrame->m_time > m_audioSource->GetPlaybackPosition());
-
+		SetConsoleTitle(std::to_wstring(nextFrame->m_time).c_str());
 		cmdplay::ConsoleUtils::SetCursorPosition(0, 0);
 		std::cout << m_asciifier->BuildFrame(nextFrame->m_data);
 
