@@ -66,8 +66,6 @@ std::string cmdplay::Asciifier::BuildFrame(const uint8_t* rgbData)
 			scanX = 0;
 			asciiDataArr[i] = '\n';
 		}
-		else
-			asciiDataArr[i] = 'U';
 	}
 	
 	int scanX = 0;
