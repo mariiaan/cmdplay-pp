@@ -1,6 +1,10 @@
 #pragma once
+#include "ConsoleColor.hpp"
 #include <cstdint>
 #include <string>
+#include <array>
+#include <vector>
+#include <memory>
 
 namespace cmdplay
 {
@@ -19,9 +23,12 @@ namespace cmdplay
 		std::string m_brightnessLevels;
 		uint8_t m_brightnessLevelCount = 0;
 		int m_targetFramebufferSize = 0;
+		inline std::string GetColor(uint8_t r, uint8_t g, uint8_t b);
+		std::vector<std::unique_ptr<ConsoleColor>> m_colors;
+		bool m_useColors = false;
 
 	public:
-		Asciifier(const std::string& brightnessLevels, int frameWidth, int frameHeight);
+		Asciifier(const std::string& brightnessLevels, int frameWidth, int frameHeight, bool useColors = false);
 		std::string BuildFrame(const uint8_t* rgbData);
 	};
 }

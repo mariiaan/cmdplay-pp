@@ -24,7 +24,7 @@ void cmdplay::VideoPlayer::Enter()
 
 		auto nextFrame = m_decoder->GetNextFrame();
 		if (nextFrame == nullptr)
-			continue;
+			continue; // todo: skip frames when lagging
 
 		while (nextFrame->m_time > m_audioSource->GetPlaybackPosition());
 		SetConsoleTitle(std::to_wstring(nextFrame->m_time).c_str());

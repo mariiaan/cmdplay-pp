@@ -147,6 +147,7 @@
     <ClCompile Include="src\audio\AudioEngine.cpp" />
     <ClCompile Include="src\audio\AudioException.cpp" />
     <ClCompile Include="src\audio\AudioSource.cpp" />
+    <ClCompile Include="src\ConsoleColor.cpp" />
     <ClCompile Include="src\ConsoleUtils.cpp" />
     <ClCompile Include="src\Instance.cpp" />
     <ClCompile Include="src\VideoPlayer.cpp" />
@@ -162,6 +163,7 @@
     <ClInclude Include="src\audio\AudioException.hpp" />
     <ClInclude Include="src\audio\AudioSource.hpp" />
     <ClInclude Include="src\audio\SpectrumElementCount.hpp" />
+    <ClInclude Include="src\ConsoleColor.hpp" />
     <ClInclude Include="src\ConsoleUtils.hpp" />
     <ClInclude Include="src\Instance.hpp" />
     <ClInclude Include="src\VideoPlayer.hpp" />

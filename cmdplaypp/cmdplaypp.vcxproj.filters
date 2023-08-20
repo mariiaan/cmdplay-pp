@@ -51,6 +51,9 @@
     <ClCompile Include="src\VideoPlayer.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="src\ConsoleColor.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Version.hpp">
@@ -90,6 +93,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="src\VideoPlayer.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ConsoleColor.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
