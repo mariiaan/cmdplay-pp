@@ -288,7 +288,7 @@ void cmdplay::video::FfmpegDecoder::WorkerThread(FfmpegDecoder* instance)
 						unsigned char* buffer = instance->m_mainThreadFramebuffer;
 						uint8_t* src = instance->m_frameRGB->data[0];
 						DecodedFrame* newFrame = new DecodedFrame(instance->m_width * instance->m_height * 3,
-							instance->m_frame->pts * static_cast<float>( // todo: fix this:
+							instance->m_frame->pts * static_cast<float>( 
 								av_q2d(instance->m_formatCtx->streams[instance->m_videoStreamIndex]->time_base)));
 						
 						int i = 0;
