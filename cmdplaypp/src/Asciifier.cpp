@@ -1,6 +1,5 @@
 #include "Asciifier.hpp"
 #include <iostream>
-#include <Windows.h>
 
 inline uint8_t cmdplay::Asciifier::MapByteToArray(uint8_t value)
 {
