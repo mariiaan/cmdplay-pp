@@ -70,7 +70,7 @@ namespace cmdplay
 			void ResetPlaybackPosition();
 
 			DecodedFrame* GetNextFrame();
-			void SetResolution(int w, int h);
+			void DeleteUnnecessaryFrames(float playbackTime);
 
 		private:
 			std::mutex m_avLock;

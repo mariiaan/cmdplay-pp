@@ -13,7 +13,7 @@ cmdplay::video::FfmpegDecoder::FfmpegDecoder()
 		m_frame = av_frame_alloc();
 		m_frameRGB = av_frame_alloc();
 		if (m_frame == nullptr || m_frameRGB == nullptr)
-			throw FfmpegException("AVFrameAllocation"); 
+			throw FfmpegException("AVFrameAllocation");
 
 		m_packet = av_packet_alloc();
 		if (m_packet == nullptr)
@@ -145,7 +145,7 @@ void cmdplay::video::FfmpegDecoder::LoadVideo(const std::string& src, int width,
 		m_mainThreadFrameBufferVideoHeight * 3;
 	m_mainThreadFramebuffer =
 		static_cast<unsigned char*>(calloc(m_mainThreadFramebufferSize, sizeof(unsigned char)));
-	
+
 	m_videoLoaded = true;
 }
 
@@ -216,10 +216,21 @@ cmdplay::video::DecodedFrame* cmdplay::video::FfmpegDecoder::GetNextFrame()
 	return nextFrame;
 }
 
-void cmdplay::video::FfmpegDecoder::SetResolution(int w, int h)
+void cmdplay::video::FfmpegDecoder::DeleteUnnecessaryFrames(float playbackTime)
 {
-	m_width = w;
-	m_height = h;
+	std::lock_guard<std::mutex> fblg{ m_mainThreadFramebufferLock };
+
+	if (m_decodedFrames.size() < 2)
+		return;
+
+	while (true)
+	{
+		if (playbackTime > m_decodedFrames[0]->m_time &&
+			playbackTime > m_decodedFrames[1]->m_time)
+			m_decodedFrames.erase(m_decodedFrames.begin());
+		else
+			break;
+	}
 }
 
 void cmdplay::video::FfmpegDecoder::WorkerThread(FfmpegDecoder* instance)
@@ -282,15 +293,15 @@ void cmdplay::video::FfmpegDecoder::WorkerThread(FfmpegDecoder* instance)
 							instance->m_frameRGB->data,
 							instance->m_frameRGB->linesize
 						);
-	
+
 						// Copies the frame data to the buffer
 						std::lock_guard<std::mutex> fblg{ instance->m_mainThreadFramebufferLock };
 						unsigned char* buffer = instance->m_mainThreadFramebuffer;
 						uint8_t* src = instance->m_frameRGB->data[0];
 						DecodedFrame* newFrame = new DecodedFrame(instance->m_width * instance->m_height * 3,
-							instance->m_frame->pts * static_cast<float>( 
+							instance->m_frame->pts * static_cast<float>(
 								av_q2d(instance->m_formatCtx->streams[instance->m_videoStreamIndex]->time_base)));
-						
+
 						int i = 0;
 						for (int y = 0; y < instance->m_height; ++y)
 						{

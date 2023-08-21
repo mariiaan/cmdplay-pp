@@ -33,7 +33,7 @@ int main(int argc, char* argv)
 	int cwidth = 0;
 	int cheight = 0;
 	cmdplay::ConsoleUtils::GetWindowSize(&cwidth, &cheight);
-	
+
 	cmdplay::VideoPlayer player(filenameInput, BRIGHTNESS_LEVELS, cwidth, cheight);
 	player.LoadVideo();
 	player.Enter();

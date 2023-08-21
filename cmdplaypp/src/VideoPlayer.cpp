@@ -22,12 +22,15 @@ void cmdplay::VideoPlayer::Enter()
 	{
 		m_decoder->SetPlaybackPosition(m_audioSource->GetPlaybackPosition() + PREBUFFER_TIME);
 
+		// skip all frames which have a playable frame already decoded
+		m_decoder->DeleteUnnecessaryFrames(m_audioSource->GetPlaybackPosition());
 		auto nextFrame = m_decoder->GetNextFrame();
 		if (nextFrame == nullptr)
-			continue; // todo: skip frames when lagging
+			continue;
 
+		// wait until our frame can be played back
 		while (nextFrame->m_time > m_audioSource->GetPlaybackPosition());
-		SetConsoleTitle(std::to_wstring(nextFrame->m_time).c_str());
+
 		cmdplay::ConsoleUtils::SetCursorPosition(0, 0);
 		std::cout << m_asciifier->BuildFrame(nextFrame->m_data);
 
