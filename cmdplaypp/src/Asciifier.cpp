@@ -1,5 +1,7 @@
 #include "Asciifier.hpp"
+#include "ColorConverter.hpp"
 #include <iostream>
+#include <algorithm>
 
 inline uint8_t cmdplay::Asciifier::MapByteToArray(uint8_t value)
 {
@@ -13,41 +15,38 @@ inline char cmdplay::Asciifier::ToChar(uint8_t index)
 
 void cmdplay::Asciifier::InitColors()
 {
-	m_colors.push_back(std::make_unique<ConsoleColor>("30", 0, 0, 0));
-	m_colors.push_back(std::make_unique < ConsoleColor>("31", 128, 0, 0));
-	m_colors.push_back(std::make_unique < ConsoleColor>("32", 0, 128, 0));
-	m_colors.push_back(std::make_unique < ConsoleColor>("33", 128, 128, 0));
-	m_colors.push_back(std::make_unique < ConsoleColor>("34", 0, 0, 128));
-	m_colors.push_back(std::make_unique < ConsoleColor>("35", 128, 0, 128));
-	m_colors.push_back(std::make_unique < ConsoleColor>("36", 0, 128, 128));
-	m_colors.push_back(std::make_unique < ConsoleColor>("37", 128, 128, 128));
-	m_colors.push_back(std::make_unique < ConsoleColor>("91", 255, 0, 0));
-	m_colors.push_back(std::make_unique < ConsoleColor>("91", 0, 255, 0));
-	m_colors.push_back(std::make_unique < ConsoleColor>("93", 255, 255, 0));
-	m_colors.push_back(std::make_unique < ConsoleColor>("94", 0, 0, 255));
-	m_colors.push_back(std::make_unique < ConsoleColor>("95", 255, 0, 255));
-	m_colors.push_back(std::make_unique < ConsoleColor>("96", 0, 255, 255));
-	m_colors.push_back(std::make_unique < ConsoleColor>("97", 255, 255, 255));
+	m_colors.push_back(std::make_unique<ConsoleColor>("30", ColorConverter::GetHue({ 0, 0, 0 })));
+	m_colors.push_back(std::make_unique<ConsoleColor>("31", ColorConverter::GetHue({ 255, 0, 0 })));
+	m_colors.push_back(std::make_unique<ConsoleColor>("32", ColorConverter::GetHue({ 0, 255, 0 })));
+	m_colors.push_back(std::make_unique<ConsoleColor>("33", ColorConverter::GetHue({ 255, 255, 0 })));
+	m_colors.push_back(std::make_unique<ConsoleColor>("34", ColorConverter::GetHue({ 0, 0, 255 })));
+	m_colors.push_back(std::make_unique<ConsoleColor>("35", ColorConverter::GetHue({ 255, 0, 255 })));
+	m_colors.push_back(std::make_unique<ConsoleColor>("36", ColorConverter::GetHue({ 0, 255, 255 })));
+	m_colors.push_back(std::make_unique<ConsoleColor>("37", ColorConverter::GetHue({ 255, 255, 255 })));
 }
 
 inline std::string cmdplay::Asciifier::GetColor(uint8_t r, uint8_t g, uint8_t b)
 {
-	int lessDistance = 100000000;
 	auto colorToReturn = m_colors[0].get();
+	float closest = 100000.0f;
+	RGB col = { r / 255.0f, g / 255.0f, b / 255.0f };
+	HSV hsv = ColorConverter::RGBToHSV(col);
+	if (hsv.s < 0.1f)
+		return "37";
+	if (hsv.v < 0.1f)
+		return "30";
 	for (int i = 0; i < m_colors.size(); ++i)
 	{
-		auto color = m_colors[i].get();
-		int rDistance = std::abs(color->m_r - r);
-		int gDistance = std::abs(color->m_g - g);
-		int bDistance = std::abs(color->m_b - b);
-		int totalDistance = rDistance + gDistance + bDistance;
+		float conColHue = m_colors[i]->m_hue;
+		float hueDistance = std::abs(conColHue - hsv.h);
 
-		if (totalDistance < lessDistance)
+		if (hueDistance < closest)
 		{
-			lessDistance = totalDistance;
-			colorToReturn = color;
+			colorToReturn = m_colors[i].get();
+			closest = hueDistance;
 		}
 	}
+
 	return colorToReturn->m_consoleColor;
 }
 

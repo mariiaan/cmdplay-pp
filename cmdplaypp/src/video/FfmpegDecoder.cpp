@@ -220,10 +220,7 @@ void cmdplay::video::FfmpegDecoder::DeleteUnnecessaryFrames(float playbackTime)
 {
 	std::lock_guard<std::mutex> fblg{ m_mainThreadFramebufferLock };
 
-	if (m_decodedFrames.size() < 2)
-		return;
-
-	while (true)
+	while (m_decodedFrames.size() > 1)
 	{
 		if (playbackTime > m_decodedFrames[0]->m_time &&
 			playbackTime > m_decodedFrames[1]->m_time)

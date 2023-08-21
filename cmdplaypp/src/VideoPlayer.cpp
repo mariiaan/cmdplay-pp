@@ -2,10 +2,11 @@
 #include "ConsoleUtils.hpp"
 #include <iostream>
 
-cmdplay::VideoPlayer::VideoPlayer(const std::string& filePath, const std::string& brightnessLevels, int windowWidth, int windowHeight) :
-	m_filePath(filePath), m_brightnessLevels(brightnessLevels), m_windowWidth(windowWidth), m_windowHeight(windowHeight)
+cmdplay::VideoPlayer::VideoPlayer(const std::string& filePath, const std::string& brightnessLevels, int windowWidth, int windowHeight, bool enableColors) :
+	m_filePath(filePath), m_brightnessLevels(brightnessLevels), m_windowWidth(windowWidth), m_windowHeight(windowHeight),
+	m_colorsEnabled(enableColors)
 {
-	m_asciifier = std::make_unique<Asciifier>(brightnessLevels, windowWidth, windowHeight);
+	m_asciifier = std::make_unique<Asciifier>(brightnessLevels, windowWidth, windowHeight, enableColors);
 	m_decoder = std::make_unique<video::FfmpegDecoder>();
 }
 

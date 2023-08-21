@@ -8,18 +8,29 @@
 
 constexpr const char* BRIGHTNESS_LEVELS = " .-+*wGHM#&%";
 
-int main(int argc, char* argv)
+int main(int argc, char* argv[])
 {
 	std::cout << "cmdplay++ version " << cmdplay::VERSION << std::endl;
 	cmdplay::Instance::AudioEngine = new cmdplay::audio::AudioEngine(-1, 44100, 0);
-
-	std::cout << "Enter filename: ";
 	std::string filenameInput;
-	std::getline(std::cin, filenameInput);
-	if (filenameInput.length() == 0)
+	bool enableColors = false;
+	if (argc == 2)
 	{
-		std::cout << "Invalid filename" << std::endl;
-		return EXIT_FAILURE;
+		filenameInput = std::string(argv[1]);
+	}
+	else
+	{
+		std::cout << "Enter filename: ";
+		std::getline(std::cin, filenameInput);
+		if (filenameInput.length() == 0)
+		{
+			std::cout << "Invalid filename" << std::endl;
+			return EXIT_FAILURE;
+		}
+		std::cout << "Do you want colors? (can limit performance in some terminal emulators) y/n: ";
+		std::string colorInput;
+		std::getline(std::cin, colorInput);
+		enableColors = colorInput == "y";
 	}
 
 	if (filenameInput.length() > 2) // Remove quotation marks if present
@@ -34,7 +45,7 @@ int main(int argc, char* argv)
 	int cheight = 0;
 	cmdplay::ConsoleUtils::GetWindowSize(&cwidth, &cheight);
 
-	cmdplay::VideoPlayer player(filenameInput, BRIGHTNESS_LEVELS, cwidth, cheight);
+	cmdplay::VideoPlayer player(filenameInput, BRIGHTNESS_LEVELS, cwidth, cheight, enableColors);
 	player.LoadVideo();
 	player.Enter();
 
