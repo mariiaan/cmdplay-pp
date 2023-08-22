@@ -22,18 +22,22 @@ cmdplay::Asciifier::Asciifier(const std::string& brightnessLevels, int frameWidt
 		m_colorDitherErrors = std::make_unique<float[]>(frameWidth * frameHeight);
 		ClearColorDitherErrors();
 	}
-	m_textDitherErrors = std::make_unique<int[]>(frameWidth * frameHeight);
+	m_textDitherErrors = std::make_unique<float[]>(frameWidth * frameHeight);
 	m_frameWidthWithStride *= m_pixelStride;
 	m_targetFramebufferSize = (m_frameWidthWithStride + 1) * m_frameHeight;
 }
 
-inline uint8_t cmdplay::Asciifier::MapByteToArray(uint8_t value)
+inline int16_t cmdplay::Asciifier::MapByteToArray(int16_t value)
 {
 	return value * (m_brightnessLevelCount - 1) / 255;
 }
 
-inline char cmdplay::Asciifier::ToChar(uint8_t index)
+inline char cmdplay::Asciifier::ToChar(int16_t index)
 {
+	if (index < 0)
+		index = 0;
+	if (index > m_brightnessLevelCount - 1)
+		index = m_brightnessLevelCount - 1;
 	return m_brightnessLevels[index];
 }
 
@@ -132,7 +136,7 @@ void cmdplay::Asciifier::ClearTextDitherErrors()
 		m_textDitherErrors[i] = 0;
 }
 
-void cmdplay::Asciifier::WriteTextDitherError(int x, int y, int error)
+void cmdplay::Asciifier::WriteTextDitherError(int x, int y, float error)
 {
 	if (x < m_frameWidth - 1)
 		m_textDitherErrors[x + (y * m_frameWidth) + 1] += error * 7;
@@ -178,19 +182,15 @@ std::string cmdplay::Asciifier::BuildFrame(const uint8_t* rgbData)
 			rgbData[i + 2] * PERCEIVED_LUMINANCE_B_FACTOR;
 		if (m_useTextDithering)
 		{
-			pixelBrightness += 1000 * m_textDitherErrors[col + row * m_frameWidth];
-			if (pixelBrightness < 0)
-				pixelBrightness = 0;
-			else if (pixelBrightness > 255000)
-				pixelBrightness = 255000;
+			pixelBrightness += static_cast<int>(1000 * m_textDitherErrors[col + row * m_frameWidth]);
 		}
 
-		uint8_t trueBrightnessByte = pixelBrightness / 1000;
-		uint8_t brightnessIndex = MapByteToArray(trueBrightnessByte);
+		int16_t trueBrightnessByte = pixelBrightness / 1000;
+		int16_t brightnessIndex = MapByteToArray(trueBrightnessByte);
 		if (m_useTextDithering)
 		{
 			int actualBrightnessByte = brightnessIndex * 255 / (m_brightnessLevelCount - 1);
-			int brightnessError = static_cast<int>((actualBrightnessByte - static_cast<int>(trueBrightnessByte)) * 0.0625f);
+			float brightnessError = (static_cast<int>(trueBrightnessByte) - actualBrightnessByte) * 0.0325f;
 			WriteTextDitherError(col, row, brightnessError);
 		}
 

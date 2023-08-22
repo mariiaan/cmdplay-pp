@@ -19,8 +19,8 @@ namespace cmdplay
 			bool useColors = true, bool useColorDithering = true, bool useTextDithering = true);
 
 	private:
-		inline uint8_t MapByteToArray(uint8_t value);
-		inline char ToChar(uint8_t index);
+		inline int16_t MapByteToArray(int16_t value);
+		inline char ToChar(int16_t index);
 		void InitColors();
 		inline std::string GetColor(uint8_t r, uint8_t g, uint8_t b);
 		inline std::string GetColorDithered(uint8_t r, uint8_t g, uint8_t b, int x, int y);
@@ -29,8 +29,8 @@ namespace cmdplay
 		std::unique_ptr<float[]> m_colorDitherErrors;
 		bool m_useColorDithering = false;
 		void ClearTextDitherErrors();
-		void WriteTextDitherError(int x, int y, int error);
-		std::unique_ptr<int[]> m_textDitherErrors;
+		void WriteTextDitherError(int x, int y, float error);
+		std::unique_ptr<float[]> m_textDitherErrors;
 		bool m_useTextDithering = false;
 		int m_frameWidthWithStride = 0;
 		int m_frameWidth = 0;
