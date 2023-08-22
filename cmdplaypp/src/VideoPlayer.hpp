@@ -12,12 +12,14 @@ namespace cmdplay
 	class VideoPlayer
 	{
 	public:
-		VideoPlayer(const std::string& filePath, const std::string& brightnessLevels, bool enableColors);
+		VideoPlayer(const std::string& filePath, const std::string& brightnessLevels);
 
 	private:
 		int m_windowWidth = 0;
 		int m_windowHeight = 0;
-		bool m_colorsEnabled = false;
+		bool m_textDitheringEnabled = true;
+		bool m_colorsEnabled = true;
+		bool m_colorDitheringEnabled = true;
 		std::string m_filePath;
 		std::string m_brightnessLevels;
 		std::unique_ptr<Asciifier> m_asciifier;

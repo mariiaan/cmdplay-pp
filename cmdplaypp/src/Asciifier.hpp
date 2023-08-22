@@ -14,11 +14,25 @@ namespace cmdplay
 
 	class Asciifier
 	{
+	public:
+		Asciifier(const std::string& brightnessLevels, int frameWidth, int frameHeight, 
+			bool useColors = true, bool useColorDithering = true, bool useTextDithering = true);
+
 	private:
 		inline uint8_t MapByteToArray(uint8_t value);
 		inline char ToChar(uint8_t index);
 		void InitColors();
 		inline std::string GetColor(uint8_t r, uint8_t g, uint8_t b);
+		inline std::string GetColorDithered(uint8_t r, uint8_t g, uint8_t b, int x, int y);
+		void ClearColorDitherErrors();
+		void WriteColorDitherErrors(int x, int y, float error);
+		std::unique_ptr<float[]> m_colorDitherErrors;
+		bool m_useColorDithering = false;
+		void ClearTextDitherErrors();
+		void WriteTextDitherError(int x, int y, int error);
+		std::unique_ptr<int[]> m_textDitherErrors;
+		bool m_useTextDithering = false;
+		int m_frameWidthWithStride = 0;
 		int m_frameWidth = 0;
 		int m_frameHeight = 0;
 		int m_frameSubpixelCount = 0;
@@ -28,9 +42,9 @@ namespace cmdplay
 		std::vector<std::unique_ptr<ConsoleColor>> m_colors;
 		bool m_useColors = false;
 		int m_pixelStride = 1;
+		int m_lastBrightnessError = 0;
 
 	public:
-		Asciifier(const std::string& brightnessLevels, int frameWidth, int frameHeight, bool useColors = true);
 		std::string BuildFrame(const uint8_t* rgbData);
 	};
 }
