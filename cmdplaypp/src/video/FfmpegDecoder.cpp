@@ -174,6 +174,11 @@ void cmdplay::video::FfmpegDecoder::UnloadVideo()
 		free(m_mainThreadFramebuffer);
 		m_mainThreadFramebuffer = nullptr;
 	}
+	if (m_swsCtx != nullptr)
+	{
+		sws_freeContext(m_swsCtx);
+		m_swsCtx = nullptr;
+	}
 	m_videoLoaded = false;
 }
 
@@ -224,10 +229,53 @@ void cmdplay::video::FfmpegDecoder::DeleteUnnecessaryFrames(float playbackTime)
 	{
 		if (playbackTime > m_decodedFrames[0]->m_time &&
 			playbackTime > m_decodedFrames[1]->m_time)
+		{
+			delete m_decodedFrames[0];
 			m_decodedFrames.erase(m_decodedFrames.begin());
+		}	
 		else
 			break;
 	}
+}
+
+void cmdplay::video::FfmpegDecoder::Resize(int width, int height)
+{
+	std::lock_guard<std::mutex> avlg{ m_avLock };
+	if (m_swsCtx != nullptr)
+		sws_freeContext(m_swsCtx);
+
+	m_width = width;
+	m_height = height;
+	m_swsCtx = sws_getContext(
+		m_codecCtx->width,
+		m_codecCtx->height,
+		m_codecCtx->pix_fmt,
+		width,
+		height,
+		AV_PIX_FMT_RGB24,
+		SWS_BILINEAR,
+		nullptr,
+		nullptr,
+		nullptr
+	);
+		
+	int ret = av_image_fill_arrays(
+		m_frameRGB->data,
+		m_frameRGB->linesize,
+		m_buffer,
+		AV_PIX_FMT_RGB24,
+		width,
+		height,
+		32
+	);
+	if (ret < 0)
+		throw FfmpegException("AVFillArrays");
+
+	std::lock_guard<std::mutex> fblg{ m_mainThreadFramebufferLock };
+	for (int i = 0; i < m_decodedFrames.size(); ++i)
+		delete m_decodedFrames[i];
+
+	m_decodedFrames.clear();
 }
 
 void cmdplay::video::FfmpegDecoder::WorkerThread(FfmpegDecoder* instance)

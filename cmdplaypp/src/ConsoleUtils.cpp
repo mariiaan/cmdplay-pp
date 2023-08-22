@@ -18,3 +18,19 @@ void cmdplay::ConsoleUtils::GetWindowSize(int* width, int* height)
 	if (height != nullptr)
 		*height = csbi.srWindow.Bottom - csbi.srWindow.Top - 1;
 }
+
+void cmdplay::ConsoleUtils::ShowConsoleCursor(bool show)
+{
+	HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
+
+	CONSOLE_CURSOR_INFO     cursorInfo;
+
+	GetConsoleCursorInfo(out, &cursorInfo);
+	cursorInfo.bVisible = show;
+	SetConsoleCursorInfo(out, &cursorInfo);
+}
+
+bool cmdplay::ConsoleUtils::GetWindowFocused()
+{
+	return GetConsoleWindow() == GetForegroundWindow();
+}

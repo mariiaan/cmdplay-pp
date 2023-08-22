@@ -71,6 +71,7 @@ namespace cmdplay
 
 			DecodedFrame* GetNextFrame();
 			void DeleteUnnecessaryFrames(float playbackTime);
+			void Resize(int width, int height);
 
 		private:
 			std::mutex m_avLock;
