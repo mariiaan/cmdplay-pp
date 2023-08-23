@@ -26,6 +26,8 @@ namespace cmdplay
 		std::unique_ptr<video::FfmpegDecoder> m_decoder;
 		std::unique_ptr<audio::AudioSource> m_audioSource;
 
+		void InitAsciifier();
+
 	public:
 		void LoadVideo();
 		void Enter();

@@ -221,7 +221,7 @@ cmdplay::video::DecodedFrame* cmdplay::video::FfmpegDecoder::GetNextFrame()
 	return nextFrame;
 }
 
-void cmdplay::video::FfmpegDecoder::DeleteUnnecessaryFrames(float playbackTime)
+void cmdplay::video::FfmpegDecoder::SkipTo(float playbackTime)
 {
 	std::lock_guard<std::mutex> fblg{ m_mainThreadFramebufferLock };
 

@@ -70,7 +70,7 @@ namespace cmdplay
 			void ResetPlaybackPosition();
 
 			DecodedFrame* GetNextFrame();
-			void DeleteUnnecessaryFrames(float playbackTime);
+			void SkipTo(float playbackTime);
 			void Resize(int width, int height);
 
 		private:

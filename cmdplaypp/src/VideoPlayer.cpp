@@ -7,8 +7,15 @@ cmdplay::VideoPlayer::VideoPlayer(const std::string& filePath, const std::string
 	m_filePath(filePath), m_brightnessLevels(brightnessLevels)
 {
 	ConsoleUtils::GetWindowSize(&m_windowWidth, &m_windowHeight);
-	m_asciifier = std::make_unique<Asciifier>(brightnessLevels, m_windowWidth, m_windowHeight, m_colorsEnabled);
+	InitAsciifier();
 	m_decoder = std::make_unique<video::FfmpegDecoder>();
+}
+
+void cmdplay::VideoPlayer::InitAsciifier()
+{
+	m_asciifier = std::make_unique<Asciifier>(m_brightnessLevels,
+		m_windowWidth, m_windowHeight, m_colorsEnabled,
+		m_colorDitheringEnabled, m_textDitheringEnabled);
 }
 
 void cmdplay::VideoPlayer::LoadVideo()
@@ -45,8 +52,7 @@ void cmdplay::VideoPlayer::Enter()
 			case 'c':
 			{
 				m_colorsEnabled = !m_colorsEnabled;
-				m_asciifier = std::make_unique<Asciifier>(m_brightnessLevels, m_windowWidth, m_windowHeight, 
-					m_colorsEnabled, m_colorDitheringEnabled, m_textDitheringEnabled);
+				InitAsciifier();
 				if (!m_colorsEnabled)
 				{
 					// Reset colors
@@ -57,18 +63,17 @@ void cmdplay::VideoPlayer::Enter()
 			case 't':
 			{
 				m_textDitheringEnabled = !m_textDitheringEnabled;
-				m_asciifier = std::make_unique<Asciifier>(m_brightnessLevels, m_windowWidth, m_windowHeight, 
-					m_colorsEnabled, m_colorDitheringEnabled, m_textDitheringEnabled);
+				InitAsciifier();
 				break;
 			}
 			case 'd':
 			{
 				m_colorDitheringEnabled = !m_colorDitheringEnabled;
-				m_asciifier = std::make_unique<Asciifier>(m_brightnessLevels, m_windowWidth, m_windowHeight,
-					m_colorsEnabled, m_colorDitheringEnabled, m_textDitheringEnabled);
+				InitAsciifier();
 				break;
 			}
-			default: break;
+			default: 
+				break;
 			}
 
 		}
@@ -87,13 +92,13 @@ void cmdplay::VideoPlayer::Enter()
 			m_windowWidth = newWidth;
 			m_windowHeight = newHeight;
 			m_decoder->Resize(m_windowWidth, m_windowHeight);
-			m_asciifier = std::make_unique<Asciifier>(m_brightnessLevels, m_windowWidth, m_windowHeight, m_colorsEnabled);
+			InitAsciifier();
 		}
 
 		m_decoder->SetPlaybackPosition(m_audioSource->GetPlaybackPosition() + PREBUFFER_TIME);
 
 		// skip all frames which have a playable frame already decoded
-		m_decoder->DeleteUnnecessaryFrames(m_audioSource->GetPlaybackPosition());
+		m_decoder->SkipTo(m_audioSource->GetPlaybackPosition());
 		auto nextFrame = m_decoder->GetNextFrame();
 		if (nextFrame == nullptr)
 			continue;
