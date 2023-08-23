@@ -17,33 +17,33 @@ cmdplay::HSV cmdplay::ColorConverter::RGBToHSV(RGB in)
     max = in.r > in.g ? in.r : in.g;
     max = max > in.b ? max : in.b;
 
-    out.v = max;                                // v
+    out.v = max;                             
     delta = max - min;
     if (delta < 0.00001)
     {
         out.s = 0;
-        out.h = 0; // undefined, maybe nan?
+        out.h = 0; 
         return out;
     }
-    if (max > 0.0) { // NOTE: if Max is == 0, this divide would cause a crash
-        out.s = (delta / max);                  // s
+    if (max > 0.0) 
+    { 
+        out.s = (delta / max);                 
     }
-    else {
-        // if max is 0, then r = g = b = 0              
-        // s = 0, h is undefined
+    else
+    {
         out.s = 0.0;
-        out.h = NAN;                            // its now undefined
+        out.h = NAN;                            
         return out;
     }
-    if (in.r >= max)                           // > is bogus, just keeps compilor happy
-        out.h = (in.g - in.b) / delta;        // between yellow & magenta
+    if (in.r >= max)                           
+        out.h = (in.g - in.b) / delta;      
     else
         if (in.g >= max)
-            out.h = 2.0 + (in.b - in.r) / delta;  // between cyan & yellow
+            out.h = 2.0 + (in.b - in.r) / delta;
         else
-            out.h = 4.0 + (in.r - in.g) / delta;  // between magenta & cyan
+            out.h = 4.0 + (in.r - in.g) / delta; 
 
-    out.h *= 60.0;                              // degrees
+    out.h *= 60.0;                         
 
     if (out.h < 0.0)
         out.h += 360.0;
