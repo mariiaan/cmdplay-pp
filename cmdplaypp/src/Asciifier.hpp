@@ -21,6 +21,7 @@ namespace cmdplay
 	private:
 		inline int16_t MapByteToArray(int16_t value);
 		inline char ToChar(int16_t index);
+		inline char ToCharUnchecked(uint16_t index);
 		void InitColors();
 		inline std::string GetColor(uint8_t r, uint8_t g, uint8_t b);
 		inline std::string GetColorDithered(uint8_t r, uint8_t g, uint8_t b, int x, int y);

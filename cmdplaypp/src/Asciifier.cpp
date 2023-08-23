@@ -36,8 +36,13 @@ inline char cmdplay::Asciifier::ToChar(int16_t index)
 {
 	if (index < 0)
 		index = 0;
-	if (index > m_brightnessLevelCount - 1)
+	else if (index > m_brightnessLevelCount - 1)
 		index = m_brightnessLevelCount - 1;
+	return m_brightnessLevels[index];
+}
+
+inline char cmdplay::Asciifier::ToCharUnchecked(uint16_t index)
+{
 	return m_brightnessLevels[index];
 }
 
@@ -59,9 +64,9 @@ inline std::string cmdplay::Asciifier::GetColor(uint8_t r, uint8_t g, uint8_t b)
 	float closest = 100000.0f;
 	RGB col = { r / 255.0f, g / 255.0f, b / 255.0f };
 	HSV hsv = ColorConverter::RGBToHSV(col);
-	if (hsv.s < 0.1f)
+	if (hsv.s < 0.05f)
 		return "37";
-	if (hsv.v < 0.1f)
+	if (hsv.v < 0.05f)
 		return "30";
 	for (int i = 0; i < m_colors.size(); ++i)
 	{
@@ -180,19 +185,20 @@ std::string cmdplay::Asciifier::BuildFrame(const uint8_t* rgbData)
 			rgbData[i] * PERCEIVED_LUMINANCE_R_FACTOR +
 			rgbData[i + 1] * PERCEIVED_LUMINANCE_G_FACTOR +
 			rgbData[i + 2] * PERCEIVED_LUMINANCE_B_FACTOR;
+
+		
+		int16_t brightnessIndex;
 		if (m_useTextDithering)
 		{
 			pixelBrightness += static_cast<int>(1000 * m_textDitherErrors[col + row * m_frameWidth]);
-		}
-
-		int16_t trueBrightnessByte = pixelBrightness / 1000;
-		int16_t brightnessIndex = MapByteToArray(trueBrightnessByte);
-		if (m_useTextDithering)
-		{
+			int16_t trueBrightnessByte = pixelBrightness / 1000;
+			brightnessIndex = MapByteToArray(trueBrightnessByte);
 			int actualBrightnessByte = brightnessIndex * 255 / (m_brightnessLevelCount - 1);
-			float brightnessError = (static_cast<int>(trueBrightnessByte) - actualBrightnessByte) * 0.0325f;
+			float brightnessError = (static_cast<int>(trueBrightnessByte) - actualBrightnessByte) * 0.0625f;
 			WriteTextDitherError(col, row, brightnessError);
 		}
+		else
+			brightnessIndex = MapByteToArray(pixelBrightness / 1000);
 
 		if (m_useColors)
 		{
@@ -209,7 +215,8 @@ std::string cmdplay::Asciifier::BuildFrame(const uint8_t* rgbData)
 		}
 		else
 		{
-			asciiDataArr[rowOffset + scanX] = ToChar(brightnessIndex);
+			asciiDataArr[rowOffset + scanX] = m_useTextDithering ? 
+				ToChar(brightnessIndex) : ToCharUnchecked(brightnessIndex);
 		}
 
 		scanX += m_pixelStride;
