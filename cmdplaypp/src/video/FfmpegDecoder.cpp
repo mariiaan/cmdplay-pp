@@ -74,12 +74,15 @@ void cmdplay::video::FfmpegDecoder::LoadVideo(const std::string& src, int width,
 	if (ret < 0)
 		throw FfmpegException("AVFindStreamInfo");
 
+	m_containsAudioStream = false;
 	for (uint32_t i = 0; i < m_formatCtx->nb_streams; ++i)
-		if (m_formatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO)
+		if (m_formatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO && m_videoStreamIndex == -1)
 		{
 			m_videoStreamIndex = i;
-			break;
 		}
+		else if (m_formatCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO)
+			m_containsAudioStream = true;
+
 	if (m_videoStreamIndex == -1)
 		throw FfmpegException("NoStreamFound");
 
@@ -276,6 +279,11 @@ void cmdplay::video::FfmpegDecoder::Resize(int width, int height)
 		delete m_decodedFrames[i];
 
 	m_decodedFrames.clear();
+}
+
+bool cmdplay::video::FfmpegDecoder::ContainsAudioStream()
+{
+	return m_containsAudioStream;
 }
 
 void cmdplay::video::FfmpegDecoder::WorkerThread(FfmpegDecoder* instance)

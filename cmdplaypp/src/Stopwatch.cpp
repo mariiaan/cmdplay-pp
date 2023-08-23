@@ -7,11 +7,28 @@ cmdplay::Stopwatch::Stopwatch()
 
 double cmdplay::Stopwatch::GetElapsed()
 {
-	auto now = std::chrono::steady_clock::now();
-	return std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count() / 1000.0;
+	auto now = std::chrono::high_resolution_clock::now();
+	if (m_paused)
+		return m_pauseOffset;
+	else
+		return std::chrono::duration_cast<std::chrono::nanoseconds>(now - start).count() / 1000000000.0 + m_pauseOffset;
 }
 
 void cmdplay::Stopwatch::Reset()
 {
-	start = std::chrono::steady_clock::now();
+	start = std::chrono::high_resolution_clock::now();
+	m_pauseOffset = 0.0;
+}
+
+void cmdplay::Stopwatch::Pause()
+{
+	float elapsed = GetElapsed() - m_pauseOffset;
+	m_pauseOffset += elapsed;
+	m_paused = true;
+}
+
+void cmdplay::Stopwatch::Resume()
+{
+	start = std::chrono::high_resolution_clock::now();
+	m_paused = false;
 }

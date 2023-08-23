@@ -1,5 +1,8 @@
 #include "VideoPlayer.hpp"
+#include "audio/AudioException.hpp"
 #include "ConsoleUtils.hpp"
+#include "Instance.hpp"
+#include "Stopwatch.hpp"
 #include <conio.h>
 #include <iostream>
 
@@ -21,12 +24,26 @@ void cmdplay::VideoPlayer::InitAsciifier()
 void cmdplay::VideoPlayer::LoadVideo()
 {
 	m_decoder->LoadVideo(m_filePath, m_windowWidth, m_windowHeight);
-	m_audioSource = std::make_unique<audio::AudioSource>(m_filePath);
+	if (Instance::AudioEngine != nullptr)
+	{
+		try
+		{
+			if (m_decoder->ContainsAudioStream())
+				m_audioSource = std::make_unique<audio::AudioSource>(m_filePath);
+			else
+				throw audio::AudioException("");
+		}
+		catch (audio::AudioException&) { m_audioSource = nullptr; }
+	}
 }
 
 void cmdplay::VideoPlayer::Enter()
 {
-	m_audioSource->Play();
+	if (m_audioSource != nullptr)
+		m_audioSource->Play();
+	double syncTime = 0.0f;
+	bool playing = true;
+	Stopwatch syncWatch;
 
 	// TODO: aint working for window terminal
 	while (true)
@@ -37,6 +54,10 @@ void cmdplay::VideoPlayer::Enter()
 		if (_kbhit())
 		{
 			char c = static_cast<char>(_getch());
+			if (c >= 'A' && c <= 'Z')
+			{
+				c += 32;
+			}
 			if (c == 'q')
 			{
 				break;
@@ -46,7 +67,13 @@ void cmdplay::VideoPlayer::Enter()
 			{
 			case ' ':
 			{
-				m_audioSource->PlayPause();
+				playing = !playing;
+				if (m_audioSource != nullptr)
+					m_audioSource->SetPlaying(playing);
+				if (playing)
+					syncWatch.Resume();
+				else
+					syncWatch.Pause();
 				break;
 			}
 			case 'c':
@@ -77,7 +104,13 @@ void cmdplay::VideoPlayer::Enter()
 			}
 
 		}
-		if (!m_audioSource->GetPlaying())
+
+		if (m_audioSource != nullptr)
+			syncTime = m_audioSource->GetPlaybackPosition();
+		else
+			syncTime = syncWatch.GetElapsed();
+		
+		if (!playing)
 		{
 			Sleep(10);
 			continue;
@@ -95,17 +128,21 @@ void cmdplay::VideoPlayer::Enter()
 			InitAsciifier();
 		}
 
-		m_decoder->SetPlaybackPosition(m_audioSource->GetPlaybackPosition() + PREBUFFER_TIME);
-
+		m_decoder->SetPlaybackPosition(syncTime + PREBUFFER_TIME);
 		// skip all frames which have a playable frame already decoded
-		m_decoder->SkipTo(m_audioSource->GetPlaybackPosition());
+		m_decoder->SkipTo(syncTime);
 		auto nextFrame = m_decoder->GetNextFrame();
 		if (nextFrame == nullptr)
 			continue;
 
 		// wait until our frame can be played back
-		while (nextFrame->m_time > m_audioSource->GetPlaybackPosition());
-
+		while (nextFrame->m_time > syncTime)
+		{
+			if (m_audioSource == nullptr)
+				syncTime = syncWatch.GetElapsed();
+			else
+				syncTime = m_audioSource->GetPlaybackPosition();
+		}
 		cmdplay::ConsoleUtils::SetCursorPosition(0, 0);
 		std::cout << m_asciifier->BuildFrame(nextFrame->m_data);
 

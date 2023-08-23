@@ -72,6 +72,7 @@ namespace cmdplay
 			DecodedFrame* GetNextFrame();
 			void SkipTo(float playbackTime);
 			void Resize(int width, int height);
+			bool ContainsAudioStream();
 
 		private:
 			std::mutex m_avLock;
@@ -106,6 +107,7 @@ namespace cmdplay
 
 			std::atomic<int> m_width = 0;
 			std::atomic<int> m_height = 0;
+			bool m_containsAudioStream = false;
 
 		private:
 			/// <summary>

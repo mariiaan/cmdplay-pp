@@ -12,7 +12,7 @@ namespace cmdplay
 
 		public:
 			AudioException(const std::string& msg);
-			std::string& GetMessage();
+			std::string& GetExMessage();
 		};
 	}
 }

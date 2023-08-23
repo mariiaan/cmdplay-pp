@@ -21,10 +21,15 @@ namespace cmdplay
 		/// </summary>
 		void Reset();
 
+		void Pause();
+		void Resume();
+
 	private:
 		/// <summary>
 		/// Timing point used for setting the start position
 		/// </summary>
 		std::chrono::steady_clock::time_point start;
+		double m_pauseOffset = 0.0;
+		bool m_paused = false;
 	};
 }
