@@ -3,8 +3,9 @@
 #include <iostream>
 #include <algorithm>
 
-cmdplay::Asciifier::Asciifier(const std::string& brightnessLevels, int frameWidth, int frameHeight, bool useColors, bool useColorDithering, bool useTextDithering) :
-	m_brightnessLevels(brightnessLevels), m_frameWidthWithStride(frameWidth), m_frameWidth(frameWidth), m_frameHeight(frameHeight),
+cmdplay::Asciifier::Asciifier(const std::string& brightnessLevels, int frameWidth, int frameHeight, 
+	bool useColors, bool useColorDithering, bool useTextDithering) :
+	m_brightnessLevels(brightnessLevels), m_frameWidth(frameWidth), m_frameHeight(frameHeight),
 	m_useColorDithering(useColorDithering), m_useTextDithering(useTextDithering),
 	m_brightnessLevelCount(static_cast<uint8_t>(brightnessLevels.length())), m_useColors(useColors)
 {
@@ -20,10 +21,14 @@ cmdplay::Asciifier::Asciifier(const std::string& brightnessLevels, int frameWidt
 	if (m_useColorDithering)
 	{
 		m_colorDitherErrors = std::make_unique<float[]>(frameWidth * frameHeight);
-		ClearColorDitherErrors();
+		ClearDitherErrors(m_colorDitherErrors.get());
 	}
-	m_textDitherErrors = std::make_unique<float[]>(frameWidth * frameHeight);
-	m_frameWidthWithStride *= m_pixelStride;
+	if (m_useTextDithering)
+	{
+		m_textDitherErrors = std::make_unique<float[]>(frameWidth * frameHeight);
+		ClearDitherErrors(m_textDitherErrors.get());
+	}
+	m_frameWidthWithStride = m_frameWidth * m_pixelStride;
 	m_targetFramebufferSize = (m_frameWidthWithStride + 1) * m_frameHeight;
 }
 
@@ -87,81 +92,68 @@ inline std::string cmdplay::Asciifier::GetColor(uint8_t r, uint8_t g, uint8_t b)
 inline std::string cmdplay::Asciifier::GetColorDithered(uint8_t r, uint8_t g, uint8_t b, int x, int y)
 {
 	auto colorToReturn = m_colors[0].get();
-	float closest = 100000.0f;
+	float closestColorDistance = 100000.0f;
 	RGB col = { r / 255.0f, g / 255.0f, b / 255.0f };
 	HSV hsv = ColorConverter::RGBToHSV(col);
+
 	if (hsv.s < 0.05f)
 		return "37";
 	if (hsv.v < 0.05f)
 		return "30";
+
 	hsv.h += m_colorDitherErrors[x + y * m_frameWidth];
 	for (int i = 0; i < m_colors.size(); ++i)
 	{
 		float conColHue = m_colors[i]->m_hue;
 		float hueDistance = std::abs(conColHue - hsv.h);
 
-		if (hueDistance < closest)
+		if (hueDistance < closestColorDistance)
 		{
 			colorToReturn = m_colors[i].get();
-			closest = hueDistance;
+			closestColorDistance = hueDistance;
 		}
 	}
 
-	int tAddr = x + y * m_frameWidthWithStride;
-	if (tAddr == m_frameWidthWithStride * m_frameHeight - 1)
-		return colorToReturn->m_consoleColor;
-	float ditherError = (hsv.h - colorToReturn->m_hue) * 0.0625f;
-	WriteColorDitherErrors(x, y, ditherError);
+	float ditherError = (hsv.h - colorToReturn->m_hue) * DITHER_FACTOR;
+	WriteDitherError(x, y, ditherError, m_colorDitherErrors.get());
 
 	return colorToReturn->m_consoleColor;
 }
 
-void cmdplay::Asciifier::ClearColorDitherErrors()
+void cmdplay::Asciifier::ClearDitherErrors(float* buffer)
 {
 	for (int i = 0; i < m_frameWidth * m_frameHeight; ++i)
-		m_colorDitherErrors[i] = 0.0f;
+		buffer[i] = 0.0f;
 }
 
-void cmdplay::Asciifier::WriteColorDitherErrors(int x, int y, float error)
+void cmdplay::Asciifier::WriteDitherError(int x, int y, float error, float* buffer)
 {
 	if (x < m_frameWidth - 1)
-		m_colorDitherErrors[x + (y * m_frameWidth) + 1] += error * 7;
+		buffer[x + (y * m_frameWidth) + 1] +=
+		error * DITHER_NEIGHBOR_RIGHT_FACTOR;
+
 	if (y < m_frameHeight - 1)
 	{
 		if (x > 0)
-			m_colorDitherErrors[x + (y + 1) * m_frameWidth - 1] += error * 3;
-		m_colorDitherErrors[x + (y + 1) * m_frameWidth] += error * 5;
-		if (x < m_frameWidth - 1)
-			m_colorDitherErrors[x + (y + 1) * m_frameWidth + 1] += error;
-	}
-}
+			buffer[x + (y + 1) * m_frameWidth - 1] +=
+			error * DITHER_NEIGHBOR_BOTTOM_LEFT_FACTOR;
 
-void cmdplay::Asciifier::ClearTextDitherErrors()
-{
-	for (int i = 0; i < m_frameWidth * m_frameHeight; ++i)
-		m_textDitherErrors[i] = 0;
-}
+		buffer[x + (y + 1) * m_frameWidth] +=
+			error * DITHER_NEIGHBOR_BOTTOM_FACTOR;
 
-void cmdplay::Asciifier::WriteTextDitherError(int x, int y, float error)
-{
-	if (x < m_frameWidth - 1)
-		m_textDitherErrors[x + (y * m_frameWidth) + 1] += error * 7;
-	if (y < m_frameHeight - 1)
-	{
-		if (x > 0)
-			m_textDitherErrors[x + (y + 1) * m_frameWidth - 1] += error * 3;
-		m_textDitherErrors[x + (y + 1) * m_frameWidth] += error * 5;
 		if (x < m_frameWidth - 1)
-			m_textDitherErrors[x + (y + 1) * m_frameWidth + 1] += error;
+			buffer[x + (y + 1) * m_frameWidth + 1] +=
+			error * DITHER_NEIGHBOR_BOTTOM_RIGHT_FACTOR;
 	}
 }
 
 std::string cmdplay::Asciifier::BuildFrame(const uint8_t* rgbData)
 {
 	if (m_useColorDithering)
-		ClearColorDitherErrors();
+		ClearDitherErrors(m_colorDitherErrors.get());
 	if (m_useTextDithering)
-		ClearTextDitherErrors();
+		ClearDitherErrors(m_textDitherErrors.get());
+
 	auto asciiData = std::make_unique<char[]>(m_targetFramebufferSize + 1);
 	char* asciiDataArr = asciiData.get();
 	for (int i = 0, scanX = 0; i < m_targetFramebufferSize; ++i)
@@ -187,7 +179,6 @@ std::string cmdplay::Asciifier::BuildFrame(const uint8_t* rgbData)
 			rgbData[i + 1] * PERCEIVED_LUMINANCE_G_FACTOR +
 			rgbData[i + 2] * PERCEIVED_LUMINANCE_B_FACTOR;
 
-		
 		int16_t brightnessIndex;
 		if (m_useTextDithering)
 		{
@@ -195,8 +186,8 @@ std::string cmdplay::Asciifier::BuildFrame(const uint8_t* rgbData)
 			int16_t trueBrightnessByte = pixelBrightness / 1000;
 			brightnessIndex = MapByteToArray(trueBrightnessByte);
 			int actualBrightnessByte = brightnessIndex * 255 / (m_brightnessLevelCount - 1);
-			float brightnessError = (static_cast<int>(trueBrightnessByte) - actualBrightnessByte) * 0.0625f;
-			WriteTextDitherError(col, row, brightnessError);
+			float brightnessError = (static_cast<int>(trueBrightnessByte) - actualBrightnessByte) * DITHER_FACTOR;
+			WriteDitherError(col, row, brightnessError, m_textDitherErrors.get());
 		}
 		else
 			brightnessIndex = MapByteToArray(pixelBrightness / 1000);

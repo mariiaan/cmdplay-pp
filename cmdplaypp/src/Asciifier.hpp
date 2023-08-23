@@ -11,6 +11,11 @@ namespace cmdplay
 	constexpr uint16_t PERCEIVED_LUMINANCE_R_FACTOR = 299;
 	constexpr uint16_t PERCEIVED_LUMINANCE_G_FACTOR = 587;
 	constexpr uint16_t PERCEIVED_LUMINANCE_B_FACTOR = 114;
+	constexpr float DITHER_FACTOR = 0.0625f;
+	constexpr int DITHER_NEIGHBOR_RIGHT_FACTOR = 7;
+	constexpr int DITHER_NEIGHBOR_BOTTOM_LEFT_FACTOR = 3;
+	constexpr int DITHER_NEIGHBOR_BOTTOM_FACTOR = 5;
+	constexpr int DITHER_NEIGHBOR_BOTTOM_RIGHT_FACTOR = 1;
 
 	class Asciifier
 	{
@@ -25,14 +30,12 @@ namespace cmdplay
 		void InitColors();
 		inline std::string GetColor(uint8_t r, uint8_t g, uint8_t b);
 		inline std::string GetColorDithered(uint8_t r, uint8_t g, uint8_t b, int x, int y);
-		void ClearColorDitherErrors();
-		void WriteColorDitherErrors(int x, int y, float error);
 		std::unique_ptr<float[]> m_colorDitherErrors;
 		bool m_useColorDithering = false;
-		void ClearTextDitherErrors();
-		void WriteTextDitherError(int x, int y, float error);
 		std::unique_ptr<float[]> m_textDitherErrors;
 		bool m_useTextDithering = false;
+		void ClearDitherErrors(float* buffer);
+		void WriteDitherError(int x, int y, float error, float* buffer);
 		int m_frameWidthWithStride = 0;
 		int m_frameWidth = 0;
 		int m_frameHeight = 0;
