@@ -29,7 +29,7 @@ namespace cmdplay
 		/// Timing point used for setting the start position
 		/// </summary>
 		std::chrono::steady_clock::time_point start;
-		double m_pauseOffset = 0.0;
+		float m_pauseOffset = 0.0;
 		bool m_paused = false;
 	};
 }
