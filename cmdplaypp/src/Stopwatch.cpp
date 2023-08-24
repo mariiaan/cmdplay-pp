@@ -5,7 +5,7 @@ cmdplay::Stopwatch::Stopwatch()
 	Reset();
 }
 
-double cmdplay::Stopwatch::GetElapsed()
+float cmdplay::Stopwatch::GetElapsed()
 {
 	auto now = std::chrono::high_resolution_clock::now();
 	if (m_paused)
