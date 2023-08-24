@@ -128,7 +128,7 @@ void cmdplay::VideoPlayer::Enter()
 		}
 
 		m_decoder->SetPlaybackPosition(syncTime + PREBUFFER_TIME);
-		// skip all frames which have a playable frame already decoded
+		// skip to the newest already decoded frame which can be shown
 		m_decoder->SkipTo(syncTime);
 		auto nextFrame = m_decoder->GetNextFrame();
 		if (nextFrame == nullptr)
