@@ -15,4 +15,5 @@ Plays videos back in command line in ascii-art.
 - ffmpeg (https://www.ffmpeg.org/)
 - bass.dll (https://www.un4seen.com/)
 
+Pull-requests will be reviewed and accepted, please keep your code simple, short and understandable!
 thank you for all your support
