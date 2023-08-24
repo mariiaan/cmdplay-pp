@@ -41,7 +41,7 @@ void cmdplay::VideoPlayer::Enter()
 {
 	if (m_audioSource != nullptr)
 		m_audioSource->Play();
-	double syncTime = 0.0f;
+	float syncTime = 0.0f;
 	bool playing = true;
 	Stopwatch syncWatch;
 
