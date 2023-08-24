@@ -45,7 +45,6 @@ void cmdplay::VideoPlayer::Enter()
 	bool playing = true;
 	Stopwatch syncWatch;
 
-	// TODO: aint working for window terminal
 	while (true)
 	{
 		// for some reason, windows enables the cursor every time we resize, so we should set it each time
