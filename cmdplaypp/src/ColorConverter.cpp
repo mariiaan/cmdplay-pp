@@ -8,8 +8,8 @@ float cmdplay::ColorConverter::GetHue(RGB in)
 
 cmdplay::HSV cmdplay::ColorConverter::RGBToHSV(RGB in)
 {
-    HSV         out;
-    double      min, max, delta;
+    HSV out;
+    float min, max, delta;
 
     min = in.r < in.g ? in.r : in.g;
     min = min < in.b ? min : in.b;
