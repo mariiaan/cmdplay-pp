@@ -14,7 +14,7 @@ namespace cmdplay
 		/// Gets the elapsed time since reset or creation.
 		/// </summary>
 		/// <returns>The elapsed time in seconds</returns>
-		double GetElapsed();
+		float GetElapsed();
 
 		/// <summary>
 		/// Resets the elapsed time
