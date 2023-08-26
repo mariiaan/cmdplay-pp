@@ -11,7 +11,7 @@ float cmdplay::Stopwatch::GetElapsed()
 	if (m_paused)
 		return m_pauseOffset;
 	else
-		return std::chrono::duration_cast<std::chrono::nanoseconds>(now - start).count() / 1000000000.0 + m_pauseOffset;
+		return std::chrono::duration_cast<std::chrono::nanoseconds>(now - start).count() / 1000000000.0f + m_pauseOffset;
 }
 
 void cmdplay::Stopwatch::Reset()

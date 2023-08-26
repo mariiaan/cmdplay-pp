@@ -20,14 +20,13 @@ cmdplay::Asciifier::Asciifier(const std::string& brightnessLevels, int frameWidt
 	m_frameSubpixelCount = frameWidth * frameHeight * 3;
 	if (m_useColorDithering)
 	{
-		m_colorDitherErrors = std::make_unique<float[]>(frameWidth * frameHeight);
-		ClearDitherErrors(m_colorDitherErrors.get());
+		m_hDitherErrors = std::make_unique<float[]>(frameWidth * frameHeight);
+		m_sDitherErrors = std::make_unique<float[]>(frameWidth * frameHeight);
+		m_vDitherErrors = std::make_unique<float[]>(frameWidth * frameHeight);
 	}
 	if (m_useTextDithering)
-	{
 		m_textDitherErrors = std::make_unique<float[]>(frameWidth * frameHeight);
-		ClearDitherErrors(m_textDitherErrors.get());
-	}
+	
 	m_frameWidthWithStride = m_frameWidth * m_pixelStride;
 	m_targetFramebufferSize = (m_frameWidthWithStride + 1) * m_frameHeight;
 }
@@ -53,7 +52,7 @@ inline char cmdplay::Asciifier::ToCharUnchecked(uint16_t index)
 
 void cmdplay::Asciifier::InitColors()
 {
-	m_colors.push_back(std::make_unique<ConsoleColor>("30", ColorConverter::GetHue({ 0, 0, 0 })));
+//	m_colors.push_back(std::make_unique<ConsoleColor>("30", ColorConverter::GetHue({ 0, 0, 0 })));
 	m_colors.push_back(std::make_unique<ConsoleColor>("31", ColorConverter::GetHue({ 255, 0, 0 })));
 	m_colors.push_back(std::make_unique<ConsoleColor>("31", ColorConverter::GetHue({ 255, 0, 0 }) + 360.0f));
 	m_colors.push_back(std::make_unique<ConsoleColor>("32", ColorConverter::GetHue({ 0, 255, 0 })));
@@ -61,7 +60,7 @@ void cmdplay::Asciifier::InitColors()
 	m_colors.push_back(std::make_unique<ConsoleColor>("34", ColorConverter::GetHue({ 0, 0, 255 })));
 	m_colors.push_back(std::make_unique<ConsoleColor>("35", ColorConverter::GetHue({ 255, 0, 255 })));
 	m_colors.push_back(std::make_unique<ConsoleColor>("36", ColorConverter::GetHue({ 0, 255, 255 })));
-	m_colors.push_back(std::make_unique<ConsoleColor>("37", ColorConverter::GetHue({ 255, 255, 255 })));
+//	m_colors.push_back(std::make_unique<ConsoleColor>("37", ColorConverter::GetHue({ 255, 255, 255 })));
 }
 
 inline std::string cmdplay::Asciifier::GetColor(uint8_t r, uint8_t g, uint8_t b)
@@ -70,10 +69,10 @@ inline std::string cmdplay::Asciifier::GetColor(uint8_t r, uint8_t g, uint8_t b)
 	float closest = 100000.0f;
 	RGB col = { r / 255.0f, g / 255.0f, b / 255.0f };
 	HSV hsv = ColorConverter::RGBToHSV(col);
-	if (hsv.s < 0.05f)
+	
+	if (hsv.s < 0.05f && hsv.v > 0.01f)
 		return "37";
-	if (hsv.v < 0.05f)
-		return "30";
+
 	for (int i = 0; i < m_colors.size(); ++i)
 	{
 		float conColHue = m_colors[i]->m_hue;
@@ -95,17 +94,21 @@ inline std::string cmdplay::Asciifier::GetColorDithered(uint8_t r, uint8_t g, ui
 	float closestColorDistance = 100000.0f;
 	RGB col = { r / 255.0f, g / 255.0f, b / 255.0f };
 	HSV hsv = ColorConverter::RGBToHSV(col);
+	int ditherAddesss = x + y * m_frameWidth;
 
-	if (hsv.s < 0.05f)
+	hsv.s += m_sDitherErrors[ditherAddesss];
+	hsv.v += m_vDitherErrors[ditherAddesss];
+	if (hsv.s < 0.05f && hsv.v > 0.01f)
+	{
+		WriteDitherError(x, y, 0.05f - hsv.s, m_sDitherErrors.get());
+		WriteDitherError(x, y, hsv.v - 0.01f, m_vDitherErrors.get());
 		return "37";
-	if (hsv.v < 0.05f)
-		return "30";
+	}
 
-	hsv.h += m_colorDitherErrors[x + y * m_frameWidth];
+	hsv.h += m_hDitherErrors[ditherAddesss];
 	for (int i = 0; i < m_colors.size(); ++i)
 	{
-		float conColHue = m_colors[i]->m_hue;
-		float hueDistance = std::abs(conColHue - hsv.h);
+		float hueDistance = std::abs(m_colors[i]->m_hue - hsv.h);
 
 		if (hueDistance < closestColorDistance)
 		{
@@ -115,7 +118,7 @@ inline std::string cmdplay::Asciifier::GetColorDithered(uint8_t r, uint8_t g, ui
 	}
 
 	float ditherError = (hsv.h - colorToReturn->m_hue) * DITHER_FACTOR;
-	WriteDitherError(x, y, ditherError, m_colorDitherErrors.get());
+	WriteDitherError(x, y, ditherError, m_hDitherErrors.get());
 
 	return colorToReturn->m_consoleColor;
 }
@@ -150,7 +153,11 @@ void cmdplay::Asciifier::WriteDitherError(int x, int y, float error, float* buff
 std::string cmdplay::Asciifier::BuildFrame(const uint8_t* rgbData)
 {
 	if (m_useColorDithering)
-		ClearDitherErrors(m_colorDitherErrors.get());
+	{
+		ClearDitherErrors(m_hDitherErrors.get());
+		ClearDitherErrors(m_sDitherErrors.get());
+		ClearDitherErrors(m_vDitherErrors.get());
+	}
 	if (m_useTextDithering)
 		ClearDitherErrors(m_textDitherErrors.get());
 
