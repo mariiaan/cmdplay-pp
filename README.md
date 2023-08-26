@@ -9,7 +9,7 @@ Plays videos back in command line in ascii-art.
 - Dithering support: dithers grayscale and colours!
 - Dynamic resizing: you can resize your console window while playing to obtain a higher/lower resolution!
 
-# What got better (in comparison to the origianl project)
+# What got better (in comparison to the original project)
 - now uses multi-threading for decoding videos!
 - way faster
 - doesn't need to precompute all frames before playing them back, does it while playing!
