@@ -5,11 +5,33 @@ It's an improved version of the original project.
 
 # Features
 Plays videos back in command line in ascii-art.
+- Colour support: play videos in colour!
+- Dithering support: dithers grayscale and colours!
+- Dynamic resizing: you can resize your console window while playing to obtain a higher/lower resolution!
 
-# What got better
+# What got better (in comparison to the origianl project)
 - now uses multi-threading for decoding videos!
 - way faster
 - doesn't need to precompute all frames before playing them back, does it while playing!
+- colours as mentioned earlier
+
+# Usage
+Run cmdplay, enter the file path (most terminal emulators also support drag and drop) and press enter!
+You can also pass the file name of the video as the first parameter, it will play the video automatically.
+
+# Performance tips
+- You should use windows terminal instead of the original windows conhost (known as cmd.exe). This will improve performance significantely due to optimizations in windows terminal.
+- Colours enabled will drop performance significantely due to the terminal not being optimized for that use, so use low resolutions while colours being enabled
+- Dithering in any way (colours and text dithering) will also reduce performance because it circumvents windows terminal optimizations, so again, use low resolutions
+
+Using windows terminal with colours disabled should allow you to use pretty high resolutions!
+
+# Controls
+SPACE - play/pause
+C - toggle colours
+D - toggle colour dithering
+T - toggle text / grayscale dithering
+Q - quit
 
 # Libraries, this project depends on
 - ffmpeg (https://www.ffmpeg.org/)
