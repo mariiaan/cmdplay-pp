@@ -21,8 +21,6 @@ cmdplay::Asciifier::Asciifier(const std::string& brightnessLevels, int frameWidt
 	if (m_useColorDithering)
 	{
 		m_hDitherErrors = std::make_unique<float[]>(frameWidth * frameHeight);
-		m_sDitherErrors = std::make_unique<float[]>(frameWidth * frameHeight);
-		m_vDitherErrors = std::make_unique<float[]>(frameWidth * frameHeight);
 	}
 	if (m_useTextDithering)
 		m_textDitherErrors = std::make_unique<float[]>(frameWidth * frameHeight);
@@ -60,7 +58,7 @@ void cmdplay::Asciifier::InitColors()
 	m_colors.push_back(std::make_unique<ConsoleColor>("34", ColorConverter::GetHue({ 0, 0, 255 })));
 	m_colors.push_back(std::make_unique<ConsoleColor>("35", ColorConverter::GetHue({ 255, 0, 255 })));
 	m_colors.push_back(std::make_unique<ConsoleColor>("36", ColorConverter::GetHue({ 0, 255, 255 })));
-//	m_colors.push_back(std::make_unique<ConsoleColor>("37", ColorConverter::GetHue({ 255, 255, 255 })));
+	//m_colors.push_back(std::make_unique<ConsoleColor>("37", ColorConverter::GetHue({ 255, 255, 255 })));
 }
 
 inline std::string cmdplay::Asciifier::GetColor(uint8_t r, uint8_t g, uint8_t b)
@@ -96,14 +94,8 @@ inline std::string cmdplay::Asciifier::GetColorDithered(uint8_t r, uint8_t g, ui
 	HSV hsv = ColorConverter::RGBToHSV(col);
 	int ditherAddesss = x + y * m_frameWidth;
 
-	hsv.s += m_sDitherErrors[ditherAddesss];
-	hsv.v += m_vDitherErrors[ditherAddesss];
 	if (hsv.s < 0.05f && hsv.v > 0.01f)
-	{
-		WriteDitherError(x, y, 0.05f - hsv.s, m_sDitherErrors.get());
-		WriteDitherError(x, y, hsv.v - 0.01f, m_vDitherErrors.get());
 		return "37";
-	}
 
 	hsv.h += m_hDitherErrors[ditherAddesss];
 	for (int i = 0; i < m_colors.size(); ++i)
@@ -153,11 +145,8 @@ void cmdplay::Asciifier::WriteDitherError(int x, int y, float error, float* buff
 std::string cmdplay::Asciifier::BuildFrame(const uint8_t* rgbData)
 {
 	if (m_useColorDithering)
-	{
 		ClearDitherErrors(m_hDitherErrors.get());
-		ClearDitherErrors(m_sDitherErrors.get());
-		ClearDitherErrors(m_vDitherErrors.get());
-	}
+
 	if (m_useTextDithering)
 		ClearDitherErrors(m_textDitherErrors.get());
 
