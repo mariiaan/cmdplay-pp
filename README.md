@@ -10,6 +10,7 @@ Plays videos back in command line in ascii-art.
 - Dynamic resizing: you can resize your console window while playing to obtain a higher/lower resolution!
 
 ![Screenshot](https://marian.aomoridev.com/projects/cmdplaypp/screenshot1.png)
+(Video: Bad Apple!)
 
 # What got better (in comparison to the original project)
 - now uses multi-threading for decoding videos!
