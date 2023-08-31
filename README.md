@@ -16,6 +16,7 @@ Demonstration of standard resolution; grayscale; dithering:
 
 Demonstration of high resolution; colours; dithering:
 ![Screenshot](https://marian.aomoridev.com/projects/cmdplaypp/screenshot2.png)
+(Video: [Alexandros] - Dracula La)
 
 # What got better (in comparison to the original project)
 - now uses multi-threading for decoding videos!
