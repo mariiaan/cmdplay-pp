@@ -9,6 +9,8 @@ Plays videos back in command line in ascii-art.
 - Dithering support: dithers grayscale and colours!
 - Dynamic resizing: you can resize your console window while playing to obtain a higher/lower resolution!
 
+![Screenshot](https://marian.aomoridev.com/projects/cmdplaypp/screenshot1.png)
+
 # What got better (in comparison to the original project)
 - now uses multi-threading for decoding videos!
 - way faster
