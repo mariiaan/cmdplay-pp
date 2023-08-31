@@ -1,4 +1,13 @@
-lib/* linguist-vendored
+lib/include/* linguist-vendored
+lib/include/libavcodec/* linguist-vendored
+lib/include/libavdevice/* linguist-vendored
+lib/include/libavfilter/* linguist-vendored
+lib/include/libavformat/* linguist-vendored
+lib/include/libavutil/* linguist-vendored
+lib/include/libpostproc/* linguist-vendored
+lib/include/libswresample/* linguist-vendored
+lib/include/libswscale/* linguist-vendored
+
 
 ###############################################################################
 # Set default behavior to automatically normalize line endings.
