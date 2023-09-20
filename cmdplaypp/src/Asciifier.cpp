@@ -247,7 +247,7 @@ std::string cmdplay::Asciifier::BuildFrame(const uint8_t* rgbData)
 			}
 			else
 			{
-				asciiDataArr[rowOffset + scanX + outString.size()] = ToChar(brightnessIndex);
+				asciiDataArr[rowOffset + scanX + outString.size()] = ToCharUnchecked(brightnessIndex);
 			}
 		}
 		else if (m_useColors)
