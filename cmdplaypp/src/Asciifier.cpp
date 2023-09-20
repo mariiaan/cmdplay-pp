@@ -4,10 +4,11 @@
 #include <algorithm>
 
 cmdplay::Asciifier::Asciifier(const std::string& brightnessLevels, int frameWidth, int frameHeight, 
-	bool useColors, bool useColorDithering, bool useTextDithering, bool useAccurateColors) :
+	bool useColors, bool useColorDithering, bool useTextDithering, bool useAccurateColors, bool useAccurateColorsFullPixel) :
 	m_brightnessLevels(brightnessLevels), m_frameWidth(frameWidth), m_frameHeight(frameHeight),
 	m_useColorDithering(useColorDithering), m_useTextDithering(useTextDithering),
-	m_brightnessLevelCount(static_cast<uint8_t>(brightnessLevels.length())), m_useColors(useColors), m_useAccurateColors(useAccurateColors)
+	m_brightnessLevelCount(static_cast<uint8_t>(brightnessLevels.length())), m_useColors(useColors), 
+	m_useAccurateColors(useAccurateColors), m_useAccurateColorsFullPixel(useAccurateColorsFullPixel)
 {
 	if (m_useColors && m_useAccurateColors)
 	{
@@ -123,13 +124,18 @@ inline std::string cmdplay::Asciifier::ByteAsPaddedString(uint8_t i)
 {
 	std::string out = std::to_string(i);
 
-	// We want this number to be always 3 characters big (e.g. 4 => 004, 27 => 027; 174 => 174)
+	// We want this number to be always 3 characters wide (e.g. 4 => 004, 27 => 027; 174 => 174)
 	while (out.size() < 3)
 	{
 		out.insert(0, "0");
 	}
 
 	return out;
+}
+
+inline bool cmdplay::Asciifier::ColorComponentNearlyEquals(uint8_t value, uint8_t other)
+{
+	return std::abs(value - other) <= COLOR_BATCHING_TOLERANCE;
 }
 
 void cmdplay::Asciifier::ClearDitherErrors(float* buffer)
@@ -207,13 +213,42 @@ std::string cmdplay::Asciifier::BuildFrame(const uint8_t* rgbData)
 
 		if (m_useColors && m_useAccurateColors)
 		{
-			std::string outString = "\x1B[38;2;" + ByteAsPaddedString(rgbData[i]) + ";" + ByteAsPaddedString(rgbData[i + 1]) + ";" + ByteAsPaddedString(rgbData[i + 2]) + "m";
+			std::string outString;
+
+			// if the color we have last set rougly equals our current color, we don't set our new color to reduce the stress on the console color interpreter
+			if (ColorComponentNearlyEquals(rgbData[i], m_lastSetColor[0]) && ColorComponentNearlyEquals(rgbData[i + 1], m_lastSetColor[1]) && ColorComponentNearlyEquals(rgbData[i + 2], m_lastSetColor[2]))
+			{
+				outString = "\x1BX000000000000000\x1B\\"; // string message that the console ignores
+			}
+			else
+			{
+				if (m_useAccurateColorsFullPixel)
+				{
+					outString = "\x1B[48;2;" + ByteAsPaddedString(rgbData[i]) + ";" + ByteAsPaddedString(rgbData[i + 1]) + ";" + ByteAsPaddedString(rgbData[i + 2]) + "m";
+				}
+				else
+				{
+					outString = "\x1B[38;2;" + ByteAsPaddedString(rgbData[i]) + ";" + ByteAsPaddedString(rgbData[i + 1]) + ";" + ByteAsPaddedString(rgbData[i + 2]) + "m";
+				}
+				
+				m_lastSetColor[0] = rgbData[i];
+				m_lastSetColor[1] = rgbData[i + 1];
+				m_lastSetColor[2] = rgbData[i + 2];
+			}
+
 			for (int i = 0; i < outString.size(); ++i)
 			{
 				asciiDataArr[rowOffset + scanX + i] = outString.at(i);
 			}
 
-			asciiDataArr[rowOffset + scanX + outString.size()] = ToChar(brightnessIndex);
+			if (m_useAccurateColorsFullPixel)
+			{
+				asciiDataArr[rowOffset + scanX + outString.size()] = ' ';
+			}
+			else
+			{
+				asciiDataArr[rowOffset + scanX + outString.size()] = ToChar(brightnessIndex);
+			}
 		}
 		else if (m_useColors)
 		{

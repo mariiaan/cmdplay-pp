@@ -20,6 +20,7 @@ namespace cmdplay
 		bool m_textDitheringEnabled = true;
 		bool m_colorsEnabled = false;
 		bool m_accurateColorsEnabled = false;
+		bool m_accurateColorsFullPixelEnabled = false;
 		bool m_colorDitheringEnabled = true;
 		std::string m_filePath;
 		std::string m_brightnessLevels;
