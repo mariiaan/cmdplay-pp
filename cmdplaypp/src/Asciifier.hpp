@@ -21,7 +21,7 @@ namespace cmdplay
 	{
 	public:
 		Asciifier(const std::string& brightnessLevels, int frameWidth, int frameHeight, 
-			bool useColors = true, bool useColorDithering = true, bool useTextDithering = true);
+			bool useColors = true, bool useColorDithering = true, bool useTextDithering = true, bool useAccurateColors = true);
 
 	private:
 		inline int16_t MapByteToArray(int16_t value);
@@ -30,6 +30,7 @@ namespace cmdplay
 		void InitColors();
 		inline std::string GetColor(uint8_t r, uint8_t g, uint8_t b);
 		inline std::string GetColorDithered(uint8_t r, uint8_t g, uint8_t b, int x, int y);
+		std::string ByteAsPaddedString(uint8_t i);
 		std::unique_ptr<float[]> m_hDitherErrors;
 		bool m_useColorDithering = false;
 		std::unique_ptr<float[]> m_textDitherErrors;
@@ -47,6 +48,7 @@ namespace cmdplay
 		bool m_useColors = false;
 		int m_pixelStride = 1;
 		int m_lastBrightnessError = 0;
+		bool m_useAccurateColors = false;
 
 	public:
 		std::string BuildFrame(const uint8_t* rgbData);

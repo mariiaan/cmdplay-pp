@@ -18,7 +18,7 @@ void cmdplay::VideoPlayer::InitAsciifier()
 {
 	m_asciifier = std::make_unique<Asciifier>(m_brightnessLevels,
 		m_windowWidth, m_windowHeight, m_colorsEnabled,
-		m_colorDitheringEnabled, m_textDitheringEnabled);
+		m_colorDitheringEnabled, m_textDitheringEnabled, m_accurateColorsEnabled);
 }
 
 void cmdplay::VideoPlayer::LoadVideo()
@@ -80,6 +80,17 @@ void cmdplay::VideoPlayer::Enter()
 				m_colorsEnabled = !m_colorsEnabled;
 				InitAsciifier();
 				if (!m_colorsEnabled)
+				{
+					// Reset colors
+					std::cout << "\x1B[0m";
+				}
+				break;
+			}
+			case 'a':
+			{
+				m_accurateColorsEnabled = !m_accurateColorsEnabled;
+				InitAsciifier();
+				if (!m_accurateColorsEnabled)
 				{
 					// Reset colors
 					std::cout << "\x1B[0m";
