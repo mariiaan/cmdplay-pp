@@ -16,12 +16,13 @@ namespace cmdplay
 	constexpr int DITHER_NEIGHBOR_BOTTOM_LEFT_FACTOR = 3;
 	constexpr int DITHER_NEIGHBOR_BOTTOM_FACTOR = 5;
 	constexpr int DITHER_NEIGHBOR_BOTTOM_RIGHT_FACTOR = 1;
+	constexpr uint8_t COLOR_BATCHING_TOLERANCE = 2;
 
 	class Asciifier
 	{
 	public:
 		Asciifier(const std::string& brightnessLevels, int frameWidth, int frameHeight, 
-			bool useColors = true, bool useColorDithering = true, bool useTextDithering = true);
+			bool useColors = true, bool useColorDithering = true, bool useTextDithering = true, bool useAccurateColors = true, bool useAccurateColorsFullPixel = true);
 
 	private:
 		inline int16_t MapByteToArray(int16_t value);
@@ -30,6 +31,8 @@ namespace cmdplay
 		void InitColors();
 		inline std::string GetColor(uint8_t r, uint8_t g, uint8_t b);
 		inline std::string GetColorDithered(uint8_t r, uint8_t g, uint8_t b, int x, int y);
+		std::string ByteAsPaddedString(uint8_t i);
+		bool ColorComponentNearlyEquals(uint8_t value, uint8_t other);
 		std::unique_ptr<float[]> m_hDitherErrors;
 		bool m_useColorDithering = false;
 		std::unique_ptr<float[]> m_textDitherErrors;
@@ -47,6 +50,9 @@ namespace cmdplay
 		bool m_useColors = false;
 		int m_pixelStride = 1;
 		int m_lastBrightnessError = 0;
+		bool m_useAccurateColors = false;
+		bool m_useAccurateColorsFullPixel = false;
+		uint8_t m_lastSetColor[3] = { 255, 255, 255 };
 
 	public:
 		std::string BuildFrame(const uint8_t* rgbData);
