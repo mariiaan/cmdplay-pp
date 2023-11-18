@@ -41,11 +41,17 @@ Using windows terminal with colours disabled should allow you to use pretty high
 
 # Controls
 SPACE - play/pause
+
 C - toggle colours
+
 D - toggle colour dithering
+
 T - toggle text / grayscale dithering
+
 Q - quit
+
 A - accurate colours (true-colour)
+
 B - full pixel
 
 # Libraries, this project depends on
