@@ -10,23 +10,23 @@ cmdplay::Asciifier::Asciifier(const std::string& brightnessLevels, int frameWidt
 	m_brightnessLevelCount(static_cast<uint8_t>(brightnessLevels.length())), m_useColors(useColors), 
 	m_useAccurateColors(useAccurateColors), m_useAccurateColorsFullPixel(useAccurateColorsFullPixel)
 {
-	if (m_useColors && m_useAccurateColors)
+	if (m_useColors)
 	{
-		m_pixelStride = 20;
-	}
-	else if (m_useColors)
-	{
-		InitColors();
-		m_pixelStride = 6;
+		if (m_useAccurateColors)
+			m_pixelStride = 20;
+		else
+		{
+			InitColors();
+			m_pixelStride = 6;
+		}
 	}
 	else
 		m_pixelStride = 1;
 
 	m_frameSubpixelCount = frameWidth * frameHeight * 3;
 	if (m_useColorDithering)
-	{
 		m_hDitherErrors = std::make_unique<float[]>(frameWidth * frameHeight);
-	}
+	
 	if (m_useTextDithering)
 		m_textDitherErrors = std::make_unique<float[]>(frameWidth * frameHeight);
 	
@@ -55,7 +55,6 @@ inline char cmdplay::Asciifier::ToCharUnchecked(uint16_t index)
 
 void cmdplay::Asciifier::InitColors()
 {
-//	m_colors.push_back(std::make_unique<ConsoleColor>("30", ColorConverter::GetHue({ 0, 0, 0 })));
 	m_colors.push_back(std::make_unique<ConsoleColor>("31", ColorConverter::GetHue({ 255, 0, 0 })));
 	m_colors.push_back(std::make_unique<ConsoleColor>("31", ColorConverter::GetHue({ 255, 0, 0 }) + 360.0f));
 	m_colors.push_back(std::make_unique<ConsoleColor>("32", ColorConverter::GetHue({ 0, 255, 0 })));
@@ -63,7 +62,6 @@ void cmdplay::Asciifier::InitColors()
 	m_colors.push_back(std::make_unique<ConsoleColor>("34", ColorConverter::GetHue({ 0, 0, 255 })));
 	m_colors.push_back(std::make_unique<ConsoleColor>("35", ColorConverter::GetHue({ 255, 0, 255 })));
 	m_colors.push_back(std::make_unique<ConsoleColor>("36", ColorConverter::GetHue({ 0, 255, 255 })));
-	//m_colors.push_back(std::make_unique<ConsoleColor>("37", ColorConverter::GetHue({ 255, 255, 255 })));
 }
 
 inline std::string cmdplay::Asciifier::GetColor(uint8_t r, uint8_t g, uint8_t b)
@@ -126,9 +124,7 @@ inline std::string cmdplay::Asciifier::ByteAsPaddedString(uint8_t i)
 
 	// We want this number to be always 3 characters wide (e.g. 4 => 004, 27 => 027; 174 => 174)
 	while (out.size() < 3)
-	{
 		out.insert(0, "0");
-	}
 
 	return out;
 }
@@ -176,13 +172,12 @@ std::string cmdplay::Asciifier::BuildFrame(const uint8_t* rgbData)
 	auto asciiData = std::make_unique<char[]>(m_targetFramebufferSize + 1);
 	char* asciiDataArr = asciiData.get();
 	for (int i = 0, scanX = 0; i < m_targetFramebufferSize; ++i)
-	{
 		if (++scanX == m_frameWidthWithStride + 1)
 		{
 			scanX = 0;
 			asciiDataArr[i] = '\n';
 		}
-	}
+	
 	// Set null-terminator
 	asciiData[m_targetFramebufferSize] = 0;
 
@@ -215,21 +210,20 @@ std::string cmdplay::Asciifier::BuildFrame(const uint8_t* rgbData)
 		{
 			std::string outString;
 
-			// if the color we have last set rougly equals our current color, we don't set our new color to reduce the stress on the console color interpreter
-			if (ColorComponentNearlyEquals(rgbData[i], m_lastSetColor[0]) && ColorComponentNearlyEquals(rgbData[i + 1], m_lastSetColor[1]) && ColorComponentNearlyEquals(rgbData[i + 2], m_lastSetColor[2]))
-			{
+			// if the color we have last set rougly equals our current color, 
+			// we don't set our new color to reduce the stress on the console color interpreter
+			if (ColorComponentNearlyEquals(rgbData[i], m_lastSetColor[0]) &&
+				ColorComponentNearlyEquals(rgbData[i + 1], m_lastSetColor[1]) && 
+				ColorComponentNearlyEquals(rgbData[i + 2], m_lastSetColor[2]))
 				outString = "\x1BX000000000000000\x1B\\"; // string message that the console ignores
-			}
 			else
 			{
 				if (m_useAccurateColorsFullPixel)
-				{
-					outString = "\x1B[48;2;" + ByteAsPaddedString(rgbData[i]) + ";" + ByteAsPaddedString(rgbData[i + 1]) + ";" + ByteAsPaddedString(rgbData[i + 2]) + "m";
-				}
+					outString = "\x1B[48;2;" + ByteAsPaddedString(rgbData[i]) + ";" + 
+					ByteAsPaddedString(rgbData[i + 1]) + ";" + ByteAsPaddedString(rgbData[i + 2]) + "m";
 				else
-				{
-					outString = "\x1B[38;2;" + ByteAsPaddedString(rgbData[i]) + ";" + ByteAsPaddedString(rgbData[i + 1]) + ";" + ByteAsPaddedString(rgbData[i + 2]) + "m";
-				}
+					outString = "\x1B[38;2;" + ByteAsPaddedString(rgbData[i]) + ";" + 
+					ByteAsPaddedString(rgbData[i + 1]) + ";" + ByteAsPaddedString(rgbData[i + 2]) + "m";
 				
 				m_lastSetColor[0] = rgbData[i];
 				m_lastSetColor[1] = rgbData[i + 1];
@@ -237,18 +231,12 @@ std::string cmdplay::Asciifier::BuildFrame(const uint8_t* rgbData)
 			}
 
 			for (int i = 0; i < outString.size(); ++i)
-			{
 				asciiDataArr[rowOffset + scanX + i] = outString.at(i);
-			}
 
 			if (m_useAccurateColorsFullPixel)
-			{
 				asciiDataArr[rowOffset + scanX + outString.size()] = ' ';
-			}
 			else
-			{
 				asciiDataArr[rowOffset + scanX + outString.size()] = ToCharUnchecked(brightnessIndex);
-			}
 		}
 		else if (m_useColors)
 		{
@@ -264,10 +252,8 @@ std::string cmdplay::Asciifier::BuildFrame(const uint8_t* rgbData)
 			asciiDataArr[rowOffset + scanX + 5] = ToChar(brightnessIndex);
 		}
 		else
-		{
 			asciiDataArr[rowOffset + scanX] = m_useTextDithering ? 
 				ToChar(brightnessIndex) : ToCharUnchecked(brightnessIndex);
-		}
 
 		scanX += m_pixelStride;
 		++col;

@@ -15,7 +15,7 @@ cmdplay::audio::AudioEngine::AudioEngine(
 	BASS_SetConfig(BASS_CONFIG_DEV_NONSTOP, 1);
 
 	if (!BASS_Init(device, sampleRate, NULL, windowHwnd, nullptr))
-		CheckAndThrowError("neoclient::engine::audio::AudioEngine::AudioEngine");
+		CheckAndThrowError("AudioEngine::AudioEngine");
 
 	m_sampleRate = sampleRate;
 	
@@ -40,7 +40,7 @@ HSTREAM cmdplay::audio::AudioEngine::CreateBassStreamFromFile(
 	const std::string& filename, DWORD flags)
 {
 	HSTREAM yield = BASS_StreamCreateFile(FALSE, filename.c_str(), 0, 0, flags);
-	CheckAndThrowError("neoclient::engine::audio::AudioEngine::CreateBassStreamFromFile");
+	CheckAndThrowError("AudioEngine::CreateBassStreamFromFile");
 
 	return yield;
 }
@@ -49,39 +49,39 @@ HSTREAM cmdplay::audio::AudioEngine::CreateBassFxTempoStream(HSTREAM src,
 	DWORD flags)
 {
 	HSTREAM yield = BASS_FX_TempoCreate(src, flags);
-	CheckAndThrowError("neoclient::engine::audio::AudioEngine::CreateBassFxTempoStream");
+	CheckAndThrowError("AudioEngine::CreateBassFxTempoStream");
 	return yield;
 }
 
 void cmdplay::audio::AudioEngine::DeleteBassStream(HSTREAM src)
 {
 	if (!BASS_StreamFree(src))
-		CheckAndThrowError("neoclient::engine::audio::AudioEngine::DeleteBassStream");
+		CheckAndThrowError("AudioEngine::DeleteBassStream");
 }
 
 void cmdplay::audio::AudioEngine::PlayBassChannel(DWORD src)
 {
 	BASS_ChannelPlay(src, false);
-	CheckAndThrowError("neoclient::engine::audio::AudioEngine::PlayBassChannel");
+	CheckAndThrowError("AudioEngine::PlayBassChannel");
 }
 
 void cmdplay::audio::AudioEngine::PauseBassChannel(DWORD src)
 {
 	BASS_ChannelPause(src);
-	CheckAndThrowError("neoclient::engine::audio::AudioEngine::PauseBassChannel");
+	CheckAndThrowError("AudioEngine::PauseBassChannel");
 }
 
 void cmdplay::audio::AudioEngine::StopBassChannel(DWORD src)
 {
 	BASS_ChannelStop(src);
-	CheckAndThrowError("neoclient::engine::audio::AudioEngine::StopBassChannel");
+	CheckAndThrowError("AudioEngine::StopBassChannel");
 }
 
 void cmdplay::audio::AudioEngine::SetTempoChannel(DWORD src, float tempo)
 {
 	BASS_ChannelSetAttribute(src, BASS_ATTRIB_TEMPO_FREQ,
 		GetSampleRate() * tempo);
-	CheckAndThrowError("neoclient::engine::audio::AudioEngine::SetTempoChannel");
+	CheckAndThrowError("AudioEngine::SetTempoChannel");
 }
 
 float cmdplay::audio::AudioEngine::GetTempoChannel(DWORD src)
@@ -95,7 +95,7 @@ int32_t cmdplay::audio::AudioEngine::GetSampleRateStream(DWORD src)
 {
 	float val;
 	BASS_ChannelGetAttribute(src, BASS_ATTRIB_FREQ, &val);
-	CheckAndThrowError("neoclient::engine::audio::AudioEngine::GetSampleRateStream");
+	CheckAndThrowError("AudioEngine::GetSampleRateStream");
 	return static_cast<int32_t>(val);
 }
 
@@ -108,21 +108,21 @@ float cmdplay::audio::AudioEngine::GetVolumeChannel(DWORD src)
 {
 	float val;
 	BASS_ChannelGetAttribute(src, BASS_ATTRIB_VOL, &val);
-	CheckAndThrowError("neoclient::engine::audio::AudioEngine::GetVolumeChannel");
+	CheckAndThrowError("AudioEngine::GetVolumeChannel");
 	return val;
 }
 
 void cmdplay::audio::AudioEngine::SetPanChannel(DWORD src, float pan)
 {
 	BASS_ChannelSetAttribute(src, BASS_ATTRIB_PAN, pan);
-	CheckAndThrowError("neoclient::engine::audio::AudioEngine::SetPanChannel");
+	CheckAndThrowError("AudioEngine::SetPanChannel");
 }
 
 float cmdplay::audio::AudioEngine::GetPanChannel(DWORD src)
 {
 	float val;
 	BASS_ChannelGetAttribute(src, BASS_ATTRIB_PAN, &val);
-	CheckAndThrowError("neoclient::engine::audio::AudioEngine::GetPanChannel");
+	CheckAndThrowError("AudioEngine::GetPanChannel");
 	return val;
 }
 
@@ -131,7 +131,7 @@ void cmdplay::audio::AudioEngine::SetPlaybackPositionChannel(DWORD src, float po
 	double dPos = static_cast<double>(pos);
 	QWORD nPos = BASS_ChannelSeconds2Bytes(src, dPos);
 	BASS_ChannelSetPosition(src, nPos, BASS_POS_BYTE);
-	CheckAndThrowError("neoclient::engine::audio::AudioEngine::SetPlaybackPositionChannel");
+	CheckAndThrowError("AudioEngine::SetPlaybackPositionChannel");
 }
 
 float cmdplay::audio::AudioEngine::GetPlaybackPositionChannel(DWORD src)
@@ -175,14 +175,14 @@ HSAMPLE cmdplay::audio::AudioEngine::CreateBassSampleFromFile(
 	HSAMPLE yield;
 	yield = BASS_SampleLoad(false, filename.c_str(), 0, 0, 
 		static_cast<DWORD>(maxPlaybacks), flags);
-	CheckAndThrowError("neoclient::engine::audio::AudioEngine::CreateBassSampleFromFile");
+	CheckAndThrowError("AudioEngine::CreateBassSampleFromFile");
 	return yield;
 }
 
 void cmdplay::audio::AudioEngine::DeleteBassSample(HSAMPLE src)
 {
 	if (!BASS_SampleFree(src))
-		CheckAndThrowError("neoclient::engine::audio::AudioEngine::DeleteBassSample");
+		CheckAndThrowError("AudioEngine::DeleteBassSample");
 }
 
 HCHANNEL cmdplay::audio::AudioEngine::CreateBassSampleChannel(HSAMPLE src)
@@ -194,7 +194,7 @@ void cmdplay::audio::AudioEngine::CheckAndThrowError(const std::string& source)
 {
 	std::string errorSource;
 	if (source.empty())
-		errorSource = "neoclient::engine::audio::AudioEngine::CheckAndThrowError";
+		errorSource = "AudioEngine::CheckAndThrowError";
 	else
 		errorSource = std::string(source);
 
@@ -309,5 +309,5 @@ void cmdplay::audio::AudioEngine::GetBassChannelSpectrum(HCHANNEL channel,
 		throw 1; // todo: exception machen
 		break; 
 	}
-	CheckAndThrowError("neoclient::engine::audio::AudioEngine::GetBassChannelSpectrum");
+	CheckAndThrowError("AudioEngine::GetBassChannelSpectrum");
 }
