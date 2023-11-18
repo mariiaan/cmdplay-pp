@@ -18,6 +18,10 @@ Demonstration of high resolution; colours; dithering:
 ![Screenshot](https://marian.aomoridev.com/projects/cmdplaypp/screenshot2.png)
 (Video: [Alexandros] - Dracula La)
 
+Demonstration of true-colour; full-pixel:
+![Screenshot](https://wmf.aomoridev.com/haruka1.png)
+(Video: haruka-chan e.1)
+
 # What got better (in comparison to the original project)
 - now uses multi-threading for decoding videos!
 - way faster
@@ -41,6 +45,8 @@ C - toggle colours
 D - toggle colour dithering
 T - toggle text / grayscale dithering
 Q - quit
+A - accurate colours (true-colour)
+B - full pixel
 
 # Libraries, this project depends on
 - FFmpeg (https://www.ffmpeg.org/)
