@@ -4,7 +4,7 @@ CC=g++
 # specify options for the compiler
 CFLAGS=-c -Wall -Ilib/include/ -std=c++17 -O3 -Dmac
 
-# for compilation, you need to get the current ffmpeg libraries (for example from https://github.com/ColorsWind/FFmpeg-macOS), then update the include files and drag the dylib files to the static/mac directory.
+# for compilation, you need to get the current ffmpeg libraries (for example from https://github.com/ColorsWind/FFmpeg-macOS), then update the include files and drag the dylib files to the static/mac directory. You need to do the same for the bass audio library which can be downloaded at https://www.un4seen.com/
 # you may need to change the names of the dylib in this makefile at the end of line 13.
 
 # in order to run it, see the readme.txt file included in the macos-release
