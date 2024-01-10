@@ -1,7 +1,6 @@
-# cmdplay-pp
+# cmdplay-u
 # What is this?
-This is the next, improved version of CmdPlay (https://github.com/mariiaan/CmdPlay).
-It's an improved version of the original project.
+This is a cuda version of cmdplay-pp
 
 # Features
 Plays videos back in command line in ascii-art.
