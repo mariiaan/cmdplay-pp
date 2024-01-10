@@ -1,8 +1,8 @@
-#include "VideoPlayer.hpp"
-#include "audio/AudioException.hpp"
-#include "ConsoleUtils.hpp"
-#include "Instance.hpp"
-#include "Stopwatch.hpp"
+#include "VideoPlayer.cuh"
+#include "audio/AudioException.cuh"
+#include "ConsoleUtils.cuh"
+#include "Instance.cuh"
+#include "Stopwatch.cuh"
 #include <conio.h>
 #include <iostream>
 
@@ -17,6 +17,10 @@ cmdplay::VideoPlayer::VideoPlayer(const std::string& filePath, const std::string
 void cmdplay::VideoPlayer::InitAsciifier()
 {
 	m_asciifier = std::make_unique<Asciifier>(m_brightnessLevels,
+		m_windowWidth, m_windowHeight, m_colorsEnabled,
+		m_colorDitheringEnabled, m_textDitheringEnabled, m_accurateColorsEnabled, m_accurateColorsFullPixelEnabled);
+
+	d_asciifier = std::make_unique<gpuAsciiFier>(m_brightnessLevels,
 		m_windowWidth, m_windowHeight, m_colorsEnabled,
 		m_colorDitheringEnabled, m_textDitheringEnabled, m_accurateColorsEnabled, m_accurateColorsFullPixelEnabled);
 }
@@ -160,7 +164,7 @@ void cmdplay::VideoPlayer::Enter()
 				syncTime = m_audioSource->GetPlaybackPosition();
 		}
 		cmdplay::ConsoleUtils::SetCursorPosition(0, 0);
-		std::cout << m_asciifier->BuildFrame(nextFrame->m_data);
+		std::cout << d_asciifier->BuildFrame(nextFrame->m_data);
 
 		delete nextFrame;
 	}

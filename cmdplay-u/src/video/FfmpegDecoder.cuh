@@ -1,5 +1,7 @@
 #pragma once
-#include "DecodedFrame.hpp"
+#include "DecodedFrame.cuh"
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
 #include <string>
 #include <memory>
 #include <atomic>
@@ -21,6 +23,7 @@ namespace cmdplay
 {
 	namespace video
 	{
+		__global__ void transferRGB(int line_size, unsigned char* data, unsigned char* src);
 		class FfmpegDecoder
 		{
 		public:

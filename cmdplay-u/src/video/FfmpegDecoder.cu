@@ -1,6 +1,6 @@
-#include "FfmpegDecoder.hpp"
-#include "FfmpegException.hpp"
-#include "../Stopwatch.hpp"
+#include "FfmpegDecoder.cuh"
+#include "FfmpegException.cuh"
+#include "../Stopwatch.cuh"
 #include <iostream>
 #include <vector>
 
@@ -112,7 +112,7 @@ void cmdplay::video::FfmpegDecoder::LoadVideo(const std::string& src, int width,
 	if (ret < 0)
 		throw FfmpegException("AVOpen2");
 
-	int bufferSize = av_image_get_buffer_size(AV_PIX_FMT_RGB24,
+	int bufferSize = av_image_get_buffer_size(AV_PIX_FMT_RGB0,
 		m_codecCtx->width, m_codecCtx->height, 32);
 	m_buffer = static_cast<uint8_t*>(av_malloc(bufferSize * sizeof(uint8_t)));
 	if (m_buffer == nullptr)
@@ -122,7 +122,7 @@ void cmdplay::video::FfmpegDecoder::LoadVideo(const std::string& src, int width,
 		m_frameRGB->data,
 		m_frameRGB->linesize,
 		m_buffer,
-		AV_PIX_FMT_RGB24,
+		AV_PIX_FMT_RGB0,
 		width,
 		height,
 		32
@@ -136,7 +136,7 @@ void cmdplay::video::FfmpegDecoder::LoadVideo(const std::string& src, int width,
 		m_codecCtx->pix_fmt,
 		width,
 		height,
-		AV_PIX_FMT_RGB24,
+		AV_PIX_FMT_RGB0,
 		SWS_BILINEAR,
 		nullptr,
 		nullptr,
@@ -145,7 +145,7 @@ void cmdplay::video::FfmpegDecoder::LoadVideo(const std::string& src, int width,
 	m_mainThreadFrameBufferVideoWidth = m_codecCtx->width;
 	m_mainThreadFrameBufferVideoHeight = m_codecCtx->height;
 	m_mainThreadFramebufferSize = m_mainThreadFrameBufferVideoWidth *
-		m_mainThreadFrameBufferVideoHeight * 3;
+		m_mainThreadFrameBufferVideoHeight * 4;
 	m_mainThreadFramebuffer =
 		static_cast<unsigned char*>(calloc(m_mainThreadFramebufferSize, sizeof(unsigned char)));
 
@@ -255,7 +255,7 @@ void cmdplay::video::FfmpegDecoder::Resize(int width, int height)
 		m_codecCtx->pix_fmt,
 		width,
 		height,
-		AV_PIX_FMT_RGB24,
+		AV_PIX_FMT_RGB0,
 		SWS_BILINEAR,
 		nullptr,
 		nullptr,
@@ -266,7 +266,7 @@ void cmdplay::video::FfmpegDecoder::Resize(int width, int height)
 		m_frameRGB->data,
 		m_frameRGB->linesize,
 		m_buffer,
-		AV_PIX_FMT_RGB24,
+		AV_PIX_FMT_RGB0,
 		width,
 		height,
 		32
@@ -284,6 +284,14 @@ void cmdplay::video::FfmpegDecoder::Resize(int width, int height)
 bool cmdplay::video::FfmpegDecoder::ContainsAudioStream()
 {
 	return m_containsAudioStream;
+}
+
+__global__ void cmdplay::video::transferRGB(int line_size, unsigned char * data, unsigned char* src) {
+	int srcpixloc = blockIdx.x * line_size + threadIdx.x * 4;
+	int gpuindex = (blockIdx.x * blockDim.x + threadIdx.x);	
+	data[gpuindex * 4] = src[srcpixloc];
+	data[gpuindex * 4 + 1] = src[srcpixloc + 1];
+	data[gpuindex * 4 + 2] = src[srcpixloc + 2];
 }
 
 void cmdplay::video::FfmpegDecoder::WorkerThread(FfmpegDecoder* instance)
@@ -351,21 +359,28 @@ void cmdplay::video::FfmpegDecoder::WorkerThread(FfmpegDecoder* instance)
 						std::lock_guard<std::mutex> fblg{ instance->m_mainThreadFramebufferLock };
 						unsigned char* buffer = instance->m_mainThreadFramebuffer;
 						uint8_t* src = instance->m_frameRGB->data[0];
-						DecodedFrame* newFrame = new DecodedFrame(instance->m_width * instance->m_height * 3,
+						DecodedFrame* newFrame = new DecodedFrame(instance->m_width * instance->m_height * 4,
 							instance->m_frame->pts * static_cast<float>(
 								av_q2d(instance->m_formatCtx->streams[instance->m_videoStreamIndex]->time_base)));
 
-						int i = 0;
-						for (int y = 0; y < instance->m_height; ++y)
-						{
-							for (int x = 0; x < instance->m_width; ++x)
-							{
-								int srcPixLoc = instance->m_frameRGB->linesize[0] * y + x * 3;
-								newFrame->m_data[i++] = src[srcPixLoc];
-								newFrame->m_data[i++] = src[srcPixLoc + 1];
-								newFrame->m_data[i++] = src[srcPixLoc + 2];
-							}
-						}
+						
+						int h = instance->m_height;
+						int w = instance->m_width;
+						int linesize = instance->m_frameRGB->linesize[0];
+						uint8_t* d_data, * d_src;
+						uint8_t* temp;
+						int le = newFrame->m_dataLength;
+						int sizedata, sizesrc;
+						sizedata = sizeof(unsigned char) * le;
+						sizesrc = linesize * h;
+						temp = (uint8_t*)malloc(sizedata);
+						cudaMalloc((void**)&d_data, sizedata);
+						cudaMalloc((void**)&d_src, sizesrc);
+						cudaMemcpy(d_src, src, sizesrc, cudaMemcpyHostToDevice);
+						transferRGB << <h, w >> > (linesize, d_data, d_src);
+						cudaDeviceSynchronize();
+						cudaMemcpy(temp, d_data, sizedata, cudaMemcpyDeviceToHost);
+						newFrame->m_data = temp;
 
 						instance->m_decodedFrames.push_back(newFrame);
 					}

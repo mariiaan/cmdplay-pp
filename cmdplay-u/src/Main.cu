@@ -1,13 +1,17 @@
 #include <iostream>
-#include "Version.hpp"
-#include "audio/AudioEngine.hpp"
-#include "audio/AudioException.hpp"
-#include "Instance.hpp"
-#include "VideoPlayer.hpp"
-#include "ConsoleUtils.hpp"
+#include <stdio.h>
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
+#include "Version.cuh"
+#include "audio/AudioEngine.cuh"
+#include "audio/AudioException.cuh"
+#include "Instance.cuh"
+#include "VideoPlayer.cuh"
+#include "ConsoleUtils.cuh"
 #include <string>
 
 constexpr const char* BRIGHTNESS_LEVELS = " .-+*wGHM#&%";
+
 
 int main(int argc, char* argv[])
 {
@@ -21,9 +25,9 @@ int main(int argc, char* argv[])
 		std::cout << "Failed to initialize audio! Error message: " << ex.GetExMessage() << std::endl;
 	}
 	std::string filenameInput;
-	if (argc > 1)
+	if (argc = 1)
 	{
-		filenameInput = std::string(argv[1]);
+		filenameInput = std::string("D:/B.mp4");
 	}
 	else
 	{

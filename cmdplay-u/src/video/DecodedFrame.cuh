@@ -12,8 +12,8 @@ namespace cmdplay
 
 			DecodedFrame(int dataLength, float time) 
 			{
-				m_dataLength = dataLength;
 				m_data = new uint8_t[dataLength];
+				m_dataLength = dataLength;
 				m_time = time;
 			}
 

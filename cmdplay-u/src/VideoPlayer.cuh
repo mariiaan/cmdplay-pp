@@ -1,7 +1,9 @@
 #pragma once
-#include "Asciifier.hpp"
-#include "video/FfmpegDecoder.hpp"
-#include "audio/AudioSource.hpp"
+#include "Asciifier.cuh"
+#include "gpuAsciifier.cuh"
+#include "video/FfmpegDecoder.cuh"
+#include "audio/AudioSource.cuh"
+
 #include <string>
 #include <memory>
 
@@ -24,6 +26,7 @@ namespace cmdplay
 		bool m_colorDitheringEnabled = true;
 		std::string m_filePath;
 		std::string m_brightnessLevels;
+		std::unique_ptr<gpuAsciiFier> d_asciifier;
 		std::unique_ptr<Asciifier> m_asciifier;
 		std::unique_ptr<video::FfmpegDecoder> m_decoder;
 		std::unique_ptr<audio::AudioSource> m_audioSource;

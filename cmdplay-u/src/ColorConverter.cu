@@ -1,4 +1,4 @@
-#include "ColorConverter.hpp"
+#include "ColorConverter.cuh"
 #include <cmath>
 
 float cmdplay::ColorConverter::GetHue(RGB in)

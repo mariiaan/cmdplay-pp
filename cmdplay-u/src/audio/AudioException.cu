@@ -1,4 +1,4 @@
-#include "AudioException.hpp"
+#include "AudioException.cuh"
 
 cmdplay::audio::AudioException::AudioException(const std::string& msg)
 {

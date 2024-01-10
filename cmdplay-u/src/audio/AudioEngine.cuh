@@ -2,7 +2,7 @@
 #include <bass.h>
 #include <bass_fx.h>
 #include <string>
-#include "SpectrumElementCount.hpp"
+#include "SpectrumElementCount.cuh"
 
 namespace cmdplay
 {

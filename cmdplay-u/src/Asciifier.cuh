@@ -1,5 +1,7 @@
 #pragma once
-#include "ConsoleColor.hpp"
+#include "ConsoleColor.cuh"
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
 #include <cstdint>
 #include <string>
 #include <array>
@@ -21,7 +23,7 @@ namespace cmdplay
 	class Asciifier
 	{
 	public:
-		Asciifier(const std::string& brightnessLevels, int frameWidth, int frameHeight, 
+		Asciifier(const std::string& brightnessLevels, int frameWidth, int frameHeight,
 			bool useColors = true, bool useColorDithering = true, bool useTextDithering = true, bool useAccurateColors = true, bool useAccurateColorsFullPixel = true);
 
 	private:

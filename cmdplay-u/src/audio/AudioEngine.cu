@@ -1,5 +1,5 @@
-#include "AudioException.hpp"
-#include "AudioEngine.hpp"
+#include "AudioException.cuh"
+#include "AudioEngine.cuh"
 #include <iostream>
 
 cmdplay::audio::AudioEngine::AudioEngine(

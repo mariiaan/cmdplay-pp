@@ -1,7 +1,8 @@
-#include "Asciifier.hpp"
-#include "ColorConverter.hpp"
+#include "Asciifier.cuh"
+#include "ColorConverter.cuh"
 #include <iostream>
 #include <algorithm>
+
 
 cmdplay::Asciifier::Asciifier(const std::string& brightnessLevels, int frameWidth, int frameHeight, 
 	bool useColors, bool useColorDithering, bool useTextDithering, bool useAccurateColors, bool useAccurateColorsFullPixel) :
@@ -23,7 +24,7 @@ cmdplay::Asciifier::Asciifier(const std::string& brightnessLevels, int frameWidt
 	else
 		m_pixelStride = 1;
 
-	m_frameSubpixelCount = frameWidth * frameHeight * 3;
+	m_frameSubpixelCount = frameWidth * frameHeight * 4;
 	if (m_useColorDithering)
 		m_hDitherErrors = std::make_unique<float[]>(frameWidth * frameHeight);
 	
@@ -171,12 +172,10 @@ std::string cmdplay::Asciifier::BuildFrame(const uint8_t* rgbData)
 
 	auto asciiData = std::make_unique<char[]>(m_targetFramebufferSize + 1);
 	char* asciiDataArr = asciiData.get();
-	for (int i = 0, scanX = 0; i < m_targetFramebufferSize; ++i)
-		if (++scanX == m_frameWidthWithStride + 1)
-		{
-			scanX = 0;
-			asciiDataArr[i] = '\n';
-		}
+	for (int i = 1; i < m_targetFramebufferSize/ (m_frameWidthWithStride+1) + 1; ++i) {
+		asciiDataArr[i* (m_frameWidthWithStride + 1) -1] = '\n';
+
+	}
 	
 	// Set null-terminator
 	asciiData[m_targetFramebufferSize] = 0;
@@ -185,7 +184,7 @@ std::string cmdplay::Asciifier::BuildFrame(const uint8_t* rgbData)
 	int rowOffset = 0;
 	int col = 0;
 	int row = 0;
-	for (int i = 0; i < m_frameSubpixelCount; i += 3)
+	for (int i = 0; i < m_frameSubpixelCount; i += 4)
 	{
 		// Max value = 255.000
 		int32_t pixelBrightness =

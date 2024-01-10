@@ -1,7 +1,7 @@
-#include "AudioSource.hpp"
-#include "AudioEngine.hpp"
-#include "../Instance.hpp"
-#include "AudioException.hpp"
+#include "AudioSource.cuh"
+#include "AudioEngine.cuh"
+#include "../Instance.cuh"
+#include "AudioException.cuh"
 #include <iostream>
 
 cmdplay::audio::AudioSource::AudioSource(bool fxEnabled)

@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CudaCompile Include="src\Asciifier.cu" />
+    <CudaCompile Include="src\audio\AudioEngine.cu" />
+    <CudaCompile Include="src\audio\AudioException.cu" />
+    <CudaCompile Include="src\audio\AudioSource.cu" />
+    <CudaCompile Include="src\ColorConverter.cu" />
+    <CudaCompile Include="src\ConsoleColor.cu" />
+    <CudaCompile Include="src\ConsoleUtils.cu" />
+    <CudaCompile Include="src\gpuAsciifier.cu" />
+    <CudaCompile Include="src\Instance.cu" />
+    <CudaCompile Include="src\Main.cu" />
+    <CudaCompile Include="src\Stopwatch.cu" />
+    <CudaCompile Include="src\VideoPlayer.cu" />
+    <CudaCompile Include="src\video\FfmpegDecoder.cu" />
+    <CudaCompile Include="src\video\FfmpegException.cu" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Asciifier.cuh">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\audio\AudioEngine.cuh">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\audio\AudioException.cuh">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\audio\AudioSource.cuh">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ColorConverter.cuh">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ConsoleColor.cuh">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ConsoleUtils.cuh">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\video\DecodedFrame.cuh">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\video\FfmpegDecoder.cuh">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\video\FfmpegException.cuh">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gpuAsciifier.cuh">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Instance.cuh">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\audio\SpectrumElementCount.cuh">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Stopwatch.cuh">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Version.cuh">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VideoPlayer.cuh">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{d1668167-c977-41d6-9c8c-6c23bf78fe5f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

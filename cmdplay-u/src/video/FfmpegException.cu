@@ -1,4 +1,4 @@
-#include "FfmpegException.hpp"
+#include "FfmpegException.cuh"
 
 cmdplay::video::FfmpegException::FfmpegException(const std::string& msg)
 {
