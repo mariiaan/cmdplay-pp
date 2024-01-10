@@ -25,9 +25,9 @@ int main(int argc, char* argv[])
 		std::cout << "Failed to initialize audio! Error message: " << ex.GetExMessage() << std::endl;
 	}
 	std::string filenameInput;
-	if (argc = 1)
+	if (argc > 1)
 	{
-		filenameInput = std::string("D:/B.mp4");
+		filenameInput = std::string(argv[1]);
 	}
 	else
 	{
