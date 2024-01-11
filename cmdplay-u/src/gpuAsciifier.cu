@@ -14,9 +14,10 @@ cmdplay::gpuAsciiFier::gpuAsciiFier(const std::string& brightnessLevels, int fra
 	m_frameWidthWithStride = m_frameWidth;
 }
 
-
 std::string cmdplay::gpuAsciiFier::BuildFrame(uint8_t * rgbData) {
 	char* framechars;
+	uint8_t* rgb;
+	char* brightnesslevel;
 	char* d_framechars;
 
 	int rgbsize, framecharssize, brightnesslevelsize;
@@ -27,24 +28,41 @@ std::string cmdplay::gpuAsciiFier::BuildFrame(uint8_t * rgbData) {
 	uint8_t* d_rgb;
 	char * d_brightnessLevels;
 
-
+	
 
 	cudaMallocHost((void**)&framechars, framecharssize, cudaHostAllocDefault);
-	cudaMallocHost((void**)&d_rgb, rgbsize, cudaHostAllocDefault);
-	cudaMallocHost((void**)&d_brightnessLevels,brightnesslevelsize, cudaHostAllocDefault);
-	
-	cudaMemcpy(d_rgb, rgbData, rgbsize, cudaMemcpyHostToDevice);
-	cudaMemcpy(d_brightnessLevels, m_brightnessLevels.c_str(), brightnesslevelsize, cudaMemcpyHostToDevice);
+	cudaMallocHost((void**)&rgb, rgbsize, cudaHostAllocDefault);
+	cudaMallocHost((void**)&brightnesslevel,brightnesslevelsize, cudaHostAllocDefault);
 
-	asciifier<< <m_frameHeight*m_frameWidth/256 + 1, 256>> > (d_rgb, d_framechars,d_brightnessLevels, m_brightnessLevelCount, m_frameWidth);
+	cudaMalloc((void**)&d_framechars, framecharssize);
+	cudaMalloc((void**)&d_rgb, rgbsize);
+	cudaMalloc(&d_brightnessLevels, brightnesslevelsize);
 
-	cudaMemcpy(framechars, d_framechars, framecharssize, cudaMemcpyDeviceToHost);
+	rgb = rgbData;
+
+	brightnesslevel = (char*)m_brightnessLevels.c_str();
 
 	for (int i = 1; i < m_framebuffersize / (m_frameWidthWithStride + 1) + 1; ++i) {
 		framechars[i * (m_frameWidthWithStride + 1) - 1] = '\n';
 
 	}
 	framechars[m_framebuffersize] = '\0';
+
+	cudaMemcpy(d_framechars, framechars, framecharssize, cudaMemcpyHostToDevice);
+	cudaMemcpy(d_rgb, rgb, rgbsize, cudaMemcpyHostToDevice);
+	cudaMemcpy(d_brightnessLevels, brightnesslevel, brightnesslevelsize, cudaMemcpyHostToDevice);
+
+	asciifier<< <m_frameHeight*m_frameWidth/256 + 1, 256>> > (d_rgb, d_framechars,d_brightnessLevels, m_brightnessLevelCount, m_frameWidth);
+
+	cudaMemcpy(framechars, d_framechars, framecharssize, cudaMemcpyHostToDevice);
+
+	cudaFree(d_framechars);
+	cudaFree(d_rgb);
+	cudaFree(d_brightnessLevels);
+
+	cudaFreeHost(framechars);
+	cudaFreeHost(rgb);
+	cudaFreeHost(brightnesslevel);
 
 	return std::string(framechars);
 }
