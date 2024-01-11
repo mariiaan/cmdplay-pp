@@ -1,4 +1,4 @@
-#include "Stopwatch.cuh"
+#include "Stopwatch.hpp"
 
 cmdplay::Stopwatch::Stopwatch()
 {

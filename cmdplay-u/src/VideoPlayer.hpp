@@ -1,8 +1,8 @@
 #pragma once
-#include "Asciifier.cuh"
+#include "Asciifier.hpp"
 #include "gpuAsciifier.cuh"
 #include "video/FfmpegDecoder.cuh"
-#include "audio/AudioSource.cuh"
+#include "audio/AudioSource.hpp"
 
 #include <string>
 #include <memory>

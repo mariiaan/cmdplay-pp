@@ -1,8 +1,8 @@
-#include "VideoPlayer.cuh"
-#include "audio/AudioException.cuh"
-#include "ConsoleUtils.cuh"
-#include "Instance.cuh"
-#include "Stopwatch.cuh"
+#include "VideoPlayer.hpp"
+#include "audio/AudioException.hpp"
+#include "ConsoleUtils.hpp"
+#include "Instance.hpp"
+#include "Stopwatch.hpp"
 #include <conio.h>
 #include <iostream>
 

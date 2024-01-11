@@ -11,36 +11,36 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Asciifier.cuh" />
-    <ClInclude Include="src\audio\AudioEngine.cuh" />
-    <ClInclude Include="src\audio\AudioException.cuh" />
-    <ClInclude Include="src\audio\AudioSource.cuh" />
-    <ClInclude Include="src\audio\SpectrumElementCount.cuh" />
-    <ClInclude Include="src\ColorConverter.cuh" />
-    <ClInclude Include="src\ConsoleColor.cuh" />
-    <ClInclude Include="src\ConsoleUtils.cuh" />
+    <ClInclude Include="src\Asciifier.hpp" />
+    <ClInclude Include="src\audio\AudioEngine.hpp" />
+    <ClInclude Include="src\audio\AudioException.hpp" />
+    <ClInclude Include="src\audio\AudioSource.hpp" />
+    <ClInclude Include="src\audio\SpectrumElementCount.hpp" />
+    <ClInclude Include="src\ColorConverter.hpp" />
+    <ClInclude Include="src\ConsoleColor.hpp" />
+    <ClInclude Include="src\ConsoleUtils.hpp" />
     <ClInclude Include="src\gpuAsciifier.cuh" />
-    <ClInclude Include="src\Instance.cuh" />
-    <ClInclude Include="src\Stopwatch.cuh" />
-    <ClInclude Include="src\Version.cuh" />
-    <ClInclude Include="src\VideoPlayer.cuh" />
-    <ClInclude Include="src\video\DecodedFrame.cuh" />
+    <ClInclude Include="src\Instance.hpp" />
+    <ClInclude Include="src\Stopwatch.hpp" />
+    <ClInclude Include="src\Version.hpp" />
+    <ClInclude Include="src\VideoPlayer.hpp" />
+    <ClInclude Include="src\video\DecodedFrame.hpp" />
     <ClInclude Include="src\video\FfmpegDecoder.cuh" />
     <ClInclude Include="src\video\FfmpegException.cuh" />
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="src\Asciifier.cu" />
-    <CudaCompile Include="src\audio\AudioEngine.cu" />
-    <CudaCompile Include="src\audio\AudioException.cu" />
-    <CudaCompile Include="src\audio\AudioSource.cu" />
-    <CudaCompile Include="src\ColorConverter.cu" />
-    <CudaCompile Include="src\ConsoleColor.cu" />
-    <CudaCompile Include="src\ConsoleUtils.cu" />
+    <CudaCompile Include="src\Asciifier.cpp" />
+    <CudaCompile Include="src\audio\AudioEngine.cpp" />
+    <CudaCompile Include="src\audio\AudioException.cpp" />
+    <CudaCompile Include="src\audio\AudioSource.cpp" />
+    <CudaCompile Include="src\ColorConverter.cpp" />
+    <CudaCompile Include="src\ConsoleColor.cpp" />
+    <CudaCompile Include="src\ConsoleUtils.cpp" />
     <CudaCompile Include="src\gpuAsciifier.cu" />
-    <CudaCompile Include="src\Instance.cu" />
+    <CudaCompile Include="src\Instance.cpp" />
     <CudaCompile Include="src\Main.cu" />
-    <CudaCompile Include="src\Stopwatch.cu" />
-    <CudaCompile Include="src\VideoPlayer.cu" />
+    <CudaCompile Include="src\Stopwatch.cpp" />
+    <CudaCompile Include="src\VideoPlayer.cpp" />
     <CudaCompile Include="src\video\FfmpegDecoder.cu" />
     <CudaCompile Include="src\video\FfmpegException.cu" />
   </ItemGroup>

@@ -1,5 +1,5 @@
 #pragma once
-#include "ConsoleColor.cuh"
+#include "ConsoleColor.hpp"
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 #include <cstdint>

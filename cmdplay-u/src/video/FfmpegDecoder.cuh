@@ -1,5 +1,5 @@
 #pragma once
-#include "DecodedFrame.cuh"
+#include "DecodedFrame.hpp"
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 #include <string>

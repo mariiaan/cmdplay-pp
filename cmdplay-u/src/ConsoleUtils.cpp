@@ -1,4 +1,4 @@
-#include "ConsoleUtils.cuh"
+#include "ConsoleUtils.hpp"
 #include <iostream>
 #ifdef mac
 #include <unistd.h>

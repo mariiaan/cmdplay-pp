@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <bass.h>
-#include "SpectrumElementCount.cuh"
+#include "SpectrumElementCount.hpp"
 namespace cmdplay
 {
 	namespace audio

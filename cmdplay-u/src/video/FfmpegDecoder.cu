@@ -1,6 +1,6 @@
 #include "FfmpegDecoder.cuh"
 #include "FfmpegException.cuh"
-#include "../Stopwatch.cuh"
+#include "../Stopwatch.hpp"
 #include <iostream>
 #include <vector>
 

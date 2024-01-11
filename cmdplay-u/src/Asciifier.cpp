@@ -1,5 +1,5 @@
-#include "Asciifier.cuh"
-#include "ColorConverter.cuh"
+#include "Asciifier.hpp"
+#include "ColorConverter.hpp"
 #include <iostream>
 #include <algorithm>
 

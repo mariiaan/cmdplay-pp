@@ -1,4 +1,4 @@
-#include "Instance.cuh"
-#include "Audio/AudioEngine.cuh"
+#include "Instance.hpp"
+#include "Audio/AudioEngine.hpp"
 
 cmdplay::audio::AudioEngine* cmdplay::Instance::AudioEngine = nullptr;

@@ -2,12 +2,12 @@
 #include <stdio.h>
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
-#include "Version.cuh"
-#include "audio/AudioEngine.cuh"
-#include "audio/AudioException.cuh"
-#include "Instance.cuh"
-#include "VideoPlayer.cuh"
-#include "ConsoleUtils.cuh"
+#include "Version.hpp"
+#include "audio/AudioEngine.hpp"
+#include "audio/AudioException.hpp"
+#include "Instance.hpp"
+#include "VideoPlayer.hpp"
+#include "ConsoleUtils.hpp"
 #include <string>
 
 constexpr const char* BRIGHTNESS_LEVELS = " .-+*wGHM#&%";
