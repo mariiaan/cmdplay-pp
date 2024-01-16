@@ -56,12 +56,9 @@ B - full pixel
 
 # Libraries, this project depends on
 - FFmpeg (https://www.ffmpeg.org/)
-- bass.dll (https://www.un4seen.com/)
 
 # License
 This project uses the MIT license. TLDR: You can do whatever you want with the project as long as you include the license and the original copyright message. (LICENSE file)
-Important: The BASS audio library (a dependency of this project) is a commercial product. While it is free for non-commercial use, please ensure to obtain a valid licence if you plan on distributing any application using it commercially.
-You can obtain a commercial license at https://www.un4seen.com/license.php
 The project also uses FFmpeg (https://ffmpeg.org/) which is licensed under LGPL 2.1+.
 
 Pull-requests will be reviewed and accepted, please keep your code simple, short and understandable!
