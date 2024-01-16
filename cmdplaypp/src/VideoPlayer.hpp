@@ -1,7 +1,7 @@
 #pragma once
 #include "Asciifier.hpp"
 #include "video/FfmpegDecoder.hpp"
-#include "audio/AudioSource.hpp"
+#include "audio/FfmpegAudio.hpp"
 #include <string>
 #include <memory>
 
@@ -26,7 +26,7 @@ namespace cmdplay
 		std::string m_brightnessLevels;
 		std::unique_ptr<Asciifier> m_asciifier;
 		std::unique_ptr<video::FfmpegDecoder> m_decoder;
-		std::unique_ptr<audio::AudioSource> m_audioSource;
+		std::unique_ptr<audio::FfmpegAudio> m_audioSource;
 
 		void InitAsciifier();
 

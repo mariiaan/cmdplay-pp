@@ -1,5 +1,5 @@
 #include "FfmpegDecoder.hpp"
-#include "FfmpegException.hpp"
+#include "../FfmpegException.hpp"
 #include "../Stopwatch.hpp"
 #include <iostream>
 #include <vector>

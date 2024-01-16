@@ -21,22 +21,10 @@
     <ClCompile Include="src\video\FfmpegDecoder.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="src\video\FfmpegException.cpp">
+    <ClCompile Include="src\FfmpegException.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="src\Stopwatch.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="src\audio\AudioEngine.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="src\audio\AudioSource.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="src\audio\AudioException.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Instance.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="src\video\DecodedFrame.cpp">
@@ -57,6 +45,12 @@
     <ClCompile Include="src\ColorConverter.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="src\audio\FfmpegAudio.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MiniAudioException.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Version.hpp">
@@ -65,25 +59,10 @@
     <ClInclude Include="src\video\FfmpegDecoder.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="src\video\FfmpegException.hpp">
+    <ClInclude Include="src\FfmpegException.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="src\Stopwatch.hpp">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="src\audio\AudioEngine.hpp">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="src\audio\AudioSource.hpp">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="src\audio\SpectrumElementCount.hpp">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="src\audio\AudioException.hpp">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Instance.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="src\video\DecodedFrame.hpp">
@@ -102,6 +81,12 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="src\ColorConverter.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\audio\FfmpegAudio.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MiniAudioException.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
