@@ -10,7 +10,7 @@ namespace cmdplay {
 			gpuAsciiFier(const std::string& brightnessLevels, int frameWidth, int frameHeight,
 				bool useColors, bool useColorDithering, bool useTextDithering, bool useAccurateColors, bool useAccurateColorsFullPixel);
 
-			std::string BuildFrame(uint8_t * rgb_data);
+			char* BuildFrame(uint8_t * rgb_data);
 		private:
 			std::vector<std::string> frames;
 			std::string m_brightnessLevels;

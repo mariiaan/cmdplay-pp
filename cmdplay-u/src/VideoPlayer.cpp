@@ -164,8 +164,10 @@ void cmdplay::VideoPlayer::Enter()
 				syncTime = m_audioSource->GetPlaybackPosition();
 		}
 		cmdplay::ConsoleUtils::SetCursorPosition(0, 0);
-		std::cout << d_asciifier->BuildFrame(nextFrame->m_data);
+		char * a = d_asciifier->BuildFrame(nextFrame->m_data);
+		std::cout << a;
 
+		cudaFreeHost(a);
 		delete nextFrame;
 	}
 	ConsoleUtils::ShowConsoleCursor(true);

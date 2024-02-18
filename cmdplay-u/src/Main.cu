@@ -32,11 +32,12 @@ int main(int argc, char* argv[])
 	else
 	{
 		std::cout << "Enter filename: ";
-		std::getline(std::cin, filenameInput);
-		if (filenameInput.length() == 0)
+		filenameInput = "D:/B.mp4";
+		if (strlen(filenameInput.c_str()) == 0)
 		{
 			std::cout << "Invalid filename" << std::endl;
 			return EXIT_FAILURE;
+
 		}
 	}
 
