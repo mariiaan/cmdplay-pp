@@ -55,6 +55,7 @@ cmdplay::audio::FfmpegAudio::~FfmpegAudio()
 	delete m_device;
 }
 
+// todo get rid of this; replace it with background thread which deocdes it within a certain buffer (around current playback time)
 void cmdplay::audio::FfmpegAudio::DecodeAll()
 {
 	m_decodePacket = av_packet_alloc();
