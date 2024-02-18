@@ -1,7 +1,7 @@
 #include "VideoPlayer.hpp"
-#include "audio/AudioException.hpp"
+
 #include "ConsoleUtils.hpp"
-#include "Instance.hpp"
+#include "MiniAudioException.hpp"
 #include "Stopwatch.hpp"
 #include <conio.h>
 #include <iostream>
@@ -28,23 +28,22 @@ void cmdplay::VideoPlayer::InitAsciifier()
 void cmdplay::VideoPlayer::LoadVideo()
 {
 	m_decoder->LoadVideo(m_filePath, m_windowWidth, m_windowHeight);
-	if (Instance::AudioEngine != nullptr)
+	try
 	{
-		try
-		{
-			if (m_decoder->ContainsAudioStream())
-				m_audioSource = std::make_unique<audio::AudioSource>(m_filePath);
-			else
-				throw audio::AudioException("");
+		if (m_decoder->ContainsAudioStream()) {
+			m_audioSource = std::make_unique<audio::FfmpegAudio>(m_filePath);
+			m_audioSource->DecodeAll();
 		}
-		catch (audio::AudioException&) { m_audioSource = nullptr; }
+		else
+			throw MiniAudioException("");
 	}
+	catch (...) { m_audioSource = nullptr; }
 }
 
 void cmdplay::VideoPlayer::Enter()
 {
 	if (m_audioSource != nullptr)
-		m_audioSource->Play();
+		m_audioSource->PlayASync();
 	float syncTime = 0.0f;
 	bool playing = true;
 	Stopwatch syncWatch;
@@ -71,12 +70,16 @@ void cmdplay::VideoPlayer::Enter()
 			case ' ':
 			{
 				playing = !playing;
-				if (m_audioSource != nullptr)
-					m_audioSource->SetPlaying(playing);
-				if (playing)
+				if (playing) {
 					syncWatch.Resume();
-				else
+					if (m_audioSource != nullptr)
+						m_audioSource->Resume();
+				}
+				else {
 					syncWatch.Pause();
+					if (m_audioSource != nullptr)
+						m_audioSource->Pause();
+				}
 				break;
 			}
 			case 'c':
@@ -126,13 +129,13 @@ void cmdplay::VideoPlayer::Enter()
 		}
 
 		if (m_audioSource != nullptr)
-			syncTime = m_audioSource->GetPlaybackPosition();
+			syncTime = m_audioSource->GetPlaybackTime();
 		else
 			syncTime = syncWatch.GetElapsed();
 		
 		if (!playing)
 		{
-			Sleep(10);
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			continue;
 		}
 
@@ -161,7 +164,7 @@ void cmdplay::VideoPlayer::Enter()
 			if (m_audioSource == nullptr)
 				syncTime = syncWatch.GetElapsed();
 			else
-				syncTime = m_audioSource->GetPlaybackPosition();
+				syncTime = m_audioSource->GetPlaybackTime();
 		}
 		cmdplay::ConsoleUtils::SetCursorPosition(0, 0);
 		char * a = d_asciifier->BuildFrame(nextFrame->m_data);

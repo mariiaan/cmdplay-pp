@@ -12,37 +12,34 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Asciifier.hpp" />
-    <ClInclude Include="src\audio\AudioEngine.hpp" />
-    <ClInclude Include="src\audio\AudioException.hpp" />
-    <ClInclude Include="src\audio\AudioSource.hpp" />
-    <ClInclude Include="src\audio\SpectrumElementCount.hpp" />
+    <ClInclude Include="src\audio\FfmpegAudio.hpp" />
     <ClInclude Include="src\ColorConverter.hpp" />
     <ClInclude Include="src\ConsoleColor.hpp" />
     <ClInclude Include="src\ConsoleUtils.hpp" />
+    <ClInclude Include="src\FfmpegException.hpp" />
     <ClInclude Include="src\gpuAsciifier.cuh" />
-    <ClInclude Include="src\Instance.hpp" />
+    <ClInclude Include="src\MiniAudioException.hpp" />
     <ClInclude Include="src\Stopwatch.hpp" />
     <ClInclude Include="src\Version.hpp" />
     <ClInclude Include="src\VideoPlayer.hpp" />
     <ClInclude Include="src\video\DecodedFrame.hpp" />
     <ClInclude Include="src\video\FfmpegDecoder.cuh" />
-    <ClInclude Include="src\video\FfmpegException.cuh" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="src\Asciifier.cpp" />
-    <CudaCompile Include="src\audio\AudioEngine.cpp" />
-    <CudaCompile Include="src\audio\AudioException.cpp" />
-    <CudaCompile Include="src\audio\AudioSource.cpp" />
     <CudaCompile Include="src\ColorConverter.cpp" />
     <CudaCompile Include="src\ConsoleColor.cpp" />
     <CudaCompile Include="src\ConsoleUtils.cpp" />
     <CudaCompile Include="src\gpuAsciifier.cu" />
-    <CudaCompile Include="src\Instance.cpp" />
     <CudaCompile Include="src\Main.cu" />
     <CudaCompile Include="src\Stopwatch.cpp" />
     <CudaCompile Include="src\VideoPlayer.cpp" />
     <CudaCompile Include="src\video\FfmpegDecoder.cu" />
-    <CudaCompile Include="src\video\FfmpegException.cu" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\audio\FfmpegAudio.cpp" />
+    <ClCompile Include="src\FfmpegException.cpp" />
+    <ClCompile Include="src\MiniAudioException.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{1F2DBBB7-74B8-4808-9B1E-243E616DFD1D}</ProjectGuid>
@@ -92,7 +89,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>bass.lib;bass_fx.lib;avcodec.lib;avdevice.lib;avfilter.lib;avformat.lib;avutil.lib;postproc.lib;swresample.lib;swscale.lib;cudart_static.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>avcodec.lib;avdevice.lib;avfilter.lib;avformat.lib;avutil.lib;postproc.lib;swresample.lib;swscale.lib;cudart_static.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>

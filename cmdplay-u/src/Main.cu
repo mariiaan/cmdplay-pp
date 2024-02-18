@@ -3,9 +3,6 @@
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 #include "Version.hpp"
-#include "audio/AudioEngine.hpp"
-#include "audio/AudioException.hpp"
-#include "Instance.hpp"
 #include "VideoPlayer.hpp"
 #include "ConsoleUtils.hpp"
 #include <string>
@@ -16,14 +13,6 @@ constexpr const char* BRIGHTNESS_LEVELS = " .-+*wGHM#&%";
 int main(int argc, char* argv[])
 {
 	std::cout << "cmdplay++ version " << cmdplay::VERSION << std::endl;
-	try
-	{
-		cmdplay::Instance::AudioEngine = new cmdplay::audio::AudioEngine(-1, 44100, 0);
-	}
-	catch (cmdplay::audio::AudioException& ex)
-	{
-		std::cout << "Failed to initialize audio! Error message: " << ex.GetExMessage() << std::endl;
-	}
 	std::string filenameInput;
 	if (argc > 1)
 	{

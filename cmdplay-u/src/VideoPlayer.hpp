@@ -2,7 +2,7 @@
 #include "Asciifier.hpp"
 #include "gpuAsciifier.cuh"
 #include "video/FfmpegDecoder.cuh"
-#include "audio/AudioSource.hpp"
+#include "audio/FFmpegAudio.hpp"
 
 #include <string>
 #include <memory>
@@ -29,7 +29,7 @@ namespace cmdplay
 		std::unique_ptr<gpuAsciiFier> d_asciifier;
 		std::unique_ptr<Asciifier> m_asciifier;
 		std::unique_ptr<video::FfmpegDecoder> m_decoder;
-		std::unique_ptr<audio::AudioSource> m_audioSource;
+		std::unique_ptr<audio::FfmpegAudio> m_audioSource;
 
 		void InitAsciifier();
 
