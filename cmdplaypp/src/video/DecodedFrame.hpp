@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+
 namespace cmdplay
 {
 	namespace video
@@ -28,7 +29,7 @@ namespace cmdplay
 
 			~DecodedFrame()
 			{
-				delete m_data;
+				delete[] m_data;
 			}
 		};
 	}

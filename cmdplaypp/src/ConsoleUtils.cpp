@@ -9,15 +9,7 @@
 
 void cmdplay::ConsoleUtils::SetCursorPosition(int x, int y)
 {
-	#ifdef mac
-    // The ANSI escape code to move the cursor is "\033[y;xH"
-    // So we can print this string with x and y replaced by the function's parameters
     std::cout << "\033[" << y << ";" << x << "H";
-	#else
-	COORD pos = { static_cast<short>(x), static_cast<short>(y) };
-	HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleCursorPosition(output, pos);
-	#endif
 }
 
 void cmdplay::ConsoleUtils::GetWindowSize(int* width, int* height)
@@ -56,14 +48,5 @@ void cmdplay::ConsoleUtils::ShowConsoleCursor(bool show)
 	GetConsoleCursorInfo(out, &cursorInfo);
 	cursorInfo.bVisible = show;
 	SetConsoleCursorInfo(out, &cursorInfo);
-	#endif
-}
-
-bool cmdplay::ConsoleUtils::GetWindowFocused()
-{
-	#ifdef mac
-	return true;
-	#else
-	return GetConsoleWindow() == GetForegroundWindow();
 	#endif
 }
