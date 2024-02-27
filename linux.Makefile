@@ -1,6 +1,6 @@
 # specify the compiler
 CC=g++
-
+# You need to install the following packages to build this: ncurses libavformat-dev libavcodec-dev libswresample-dev libswscale-dev libavutil-dev
 # specify options for the compiler
 CFLAGS=-c -Wall -Ilib/include/ -std=c++17 -O3 -Dlinux
 
