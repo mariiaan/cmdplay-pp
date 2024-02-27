@@ -2,7 +2,11 @@
 #include "ConsoleUtils.hpp"
 #include "Stopwatch.hpp"
 #include "MiniAudioException.hpp"
+#ifdef linux
+#include <ncurses.h>
+#else
 #include <conio.h>
+#endif
 #include <iostream>
 
 cmdplay::VideoPlayer::VideoPlayer(const std::string& filePath, const std::string& brightnessLevels) :
@@ -45,14 +49,27 @@ void cmdplay::VideoPlayer::Enter()
 	bool playing = true;
 	Stopwatch syncWatch;
 
+	#ifdef linux
+	initscr();
+	nodelay(stdscr, 1);
+	#endif
+
 	while (true)
 	{
 		// for some reason, windows enables the cursor every time we resize, so we should set it each time
+		#ifndef linux
 		ConsoleUtils::ShowConsoleCursor(false);
+		#endif
 
-		if (_kbhit())
+		#ifndef linux
+		if (_kbhit())q
+		#endif
 		{
+			#ifdef linux
+			char c = static_cast<char>(getch());
+			#else
 			char c = static_cast<char>(_getch());
+			#endif
 			if (c >= 'A' && c <= 'Z')
 			{
 				c += 32;
@@ -165,10 +182,20 @@ void cmdplay::VideoPlayer::Enter()
 			else
 				syncTime = m_audioSource->GetPlaybackTime();
 		}
+		#ifdef linux
+		clear();
+		#else
 		cmdplay::ConsoleUtils::SetCursorPosition(0, 0);
-		std::cout << m_asciifier->BuildFrame(nextFrame->m_data);
+		#endif
+		std::string frame = m_asciifier->BuildFrame(nextFrame->m_data);
+		
+		printw("%s", frame.c_str());
+		refresh();
 
 		delete nextFrame;
 	}
+	#ifdef linux
+	endwin();
+	#endif
 	ConsoleUtils::ShowConsoleCursor(true);
 }

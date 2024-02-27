@@ -208,7 +208,7 @@ bool cmdplay::video::FfmpegDecoder::IsVideoReadyToPlay()
 void cmdplay::video::FfmpegDecoder::ResetPlaybackPosition()
 {
 	std::lock_guard<std::mutex> lg{ m_avLock };
-	m_codecCtx->frame_num = 0;
+	m_codecCtx->frame_number = 0;
 	av_seek_frame(m_formatCtx, m_videoStreamIndex, 0, 0);
 }
 
@@ -305,7 +305,7 @@ void cmdplay::video::FfmpegDecoder::WorkerThread(FfmpegDecoder* instance)
 
 		int64_t shouldFrameIndex = static_cast<int64_t>(
 			fps * static_cast<double>(instance->m_currentTime));
-		int64_t decodedFrameIndex = instance->m_codecCtx->frame_num;
+		int64_t decodedFrameIndex = instance->m_codecCtx->frame_number;
 
 		if (shouldFrameIndex > decodedFrameIndex)
 		{

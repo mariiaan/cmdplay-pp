@@ -6,6 +6,7 @@
 #include <mutex>
 #include <thread>
 #include <future>
+#include <vector>
 
 extern "C"
 {

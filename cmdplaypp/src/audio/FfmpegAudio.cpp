@@ -45,6 +45,7 @@ cmdplay::audio::FfmpegAudio::FfmpegAudio(const std::string& path)
 	ret = avcodec_open2(codec_ctx, decoder, nullptr);
 	if (ret < 0)
 		throw FfmpegException("Unable to open decoder");
+	std::cout << "init comp" << std::endl;
 }
 
 cmdplay::audio::FfmpegAudio::~FfmpegAudio()
@@ -58,15 +59,17 @@ cmdplay::audio::FfmpegAudio::~FfmpegAudio()
 // todo get rid of this; replace it with background thread which deocdes it within a certain buffer (around current playback time)
 void cmdplay::audio::FfmpegAudio::DecodeAll()
 {
+	std::cout << "DecodeAll()" << std::endl;
 	m_decodePacket = av_packet_alloc();
 	m_decodeFrame = av_frame_alloc();
-	m_resampler = swr_alloc();
-	int ret = swr_alloc_set_opts2(&m_resampler, &stream->codecpar->ch_layout,
-		AV_SAMPLE_FMT_FLT, stream->codecpar->sample_rate, &stream->codecpar->ch_layout,
+	//m_resampler = swr_alloc();
+	std::cout << "set_opts()" << std::endl;
+	m_resampler = swr_alloc_set_opts(m_resampler, stream->codecpar->channel_layout,
+		AV_SAMPLE_FMT_FLT, stream->codecpar->sample_rate, stream->codecpar->channel_layout,
 		(AVSampleFormat)stream->codecpar->format, stream->codecpar->sample_rate, 0, nullptr);
-
-	m_fifo = av_audio_fifo_alloc(AV_SAMPLE_FMT_FLT, stream->codecpar->ch_layout.nb_channels, 1);
-
+	int ret;
+	int numChannels = av_get_channel_layout_nb_channels(stream->codecpar->channel_layout);
+	m_fifo = av_audio_fifo_alloc(AV_SAMPLE_FMT_FLT, numChannels, 1);
 	while (0 == av_read_frame(format_ctx, m_decodePacket))
 	{
 		if (m_decodePacket->stream_index != streamIndex) 
@@ -83,8 +86,7 @@ void cmdplay::audio::FfmpegAudio::DecodeAll()
 		{
 			AVFrame* resampled_frame = av_frame_alloc();
 			resampled_frame->sample_rate = m_decodeFrame->sample_rate;
-			resampled_frame->ch_layout = m_decodeFrame->ch_layout;
-
+			resampled_frame->channel_layout = m_decodeFrame->channel_layout;
 			resampled_frame->format = AV_SAMPLE_FMT_FLT;
 			ret = swr_convert_frame(m_resampler, resampled_frame, m_decodeFrame);
 			av_frame_unref(m_decodeFrame);
@@ -98,11 +100,13 @@ void cmdplay::audio::FfmpegAudio::PlayASync()
 {
 	ma_device_config srcConfig = ma_device_config_init(ma_device_type_playback);
 	m_deviceConfig = new ma_device_config();
-	std::memcpy(m_deviceConfig, &srcConfig, sizeof(ma_device_config));
+	memcpy(m_deviceConfig, &srcConfig, sizeof(ma_device_config));
 
 	//m_deviceConfig = ma_device_config_init(ma_device_type_playback);
 	m_deviceConfig->playback.format = ma_format_f32;
-	m_deviceConfig->playback.channels = stream->codecpar->ch_layout.nb_channels;
+		int numChannels;
+	numChannels = av_get_channel_layout_nb_channels(stream->codecpar->channel_layout);
+	m_deviceConfig->playback.channels = numChannels; // hurensohn
 	m_deviceConfig->sampleRate = stream->codecpar->sample_rate;
 	m_deviceConfig->dataCallback = data_callback;
 	m_deviceConfig->pUserData = this;

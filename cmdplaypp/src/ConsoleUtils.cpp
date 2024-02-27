@@ -1,6 +1,6 @@
 #include "ConsoleUtils.hpp"
 #include <iostream>
-#ifdef mac
+#ifdef linux
 #include <unistd.h>
 #include <sys/ioctl.h>
 #else
@@ -14,7 +14,7 @@ void cmdplay::ConsoleUtils::SetCursorPosition(int x, int y)
 
 void cmdplay::ConsoleUtils::GetWindowSize(int* width, int* height)
 {
-	#ifdef mac
+	#ifdef linux
 	struct winsize w;
 	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 	
@@ -35,7 +35,7 @@ void cmdplay::ConsoleUtils::GetWindowSize(int* width, int* height)
 
 void cmdplay::ConsoleUtils::ShowConsoleCursor(bool show)
 {
-	#ifdef mac
+	#ifdef linux
 	if (show)
 		std::cout << "\e[?25h]";
 	else
