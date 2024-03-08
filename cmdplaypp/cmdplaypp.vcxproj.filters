@@ -51,6 +51,9 @@
     <ClCompile Include="src\MiniAudioException.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="src\VideoEncoder.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Version.hpp">
@@ -87,6 +90,9 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="src\MiniAudioException.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VideoEncoder.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>

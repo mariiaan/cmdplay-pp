@@ -149,6 +149,7 @@
     <ClCompile Include="src\ConsoleColor.cpp" />
     <ClCompile Include="src\ConsoleUtils.cpp" />
     <ClCompile Include="src\MiniAudioException.cpp" />
+    <ClCompile Include="src\VideoEncoder.cpp" />
     <ClCompile Include="src\VideoPlayer.cpp" />
     <ClCompile Include="src\video\DecodedFrame.cpp" />
     <ClCompile Include="src\video\FfmpegDecoder.cpp" />
@@ -163,6 +164,7 @@
     <ClInclude Include="src\ConsoleColor.hpp" />
     <ClInclude Include="src\ConsoleUtils.hpp" />
     <ClInclude Include="src\MiniAudioException.hpp" />
+    <ClInclude Include="src\VideoEncoder.hpp" />
     <ClInclude Include="src\VideoPlayer.hpp" />
     <ClInclude Include="src\video\DecodedFrame.hpp" />
     <ClInclude Include="src\video\FfmpegDecoder.hpp" />
