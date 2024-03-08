@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "video/EncodeParams.hpp"
 
 namespace cmdplay
 {
@@ -8,8 +9,12 @@ namespace cmdplay
 	public:
 		VideoEncoder(const std::string& filepath, const std::string& brightnessLevels);
 		
+	private:
+		std::string m_inputFilename;
+		std::string m_brightnessLevels;
+
 	public:
-		static bool OpenSettings(std::string& outputFilename, int* resX, int* resY);
-		void BeginEncoding(const std::string& outputFilename, int resX, int resY, bool output = true);
+		static bool OpenSettings(std::string& outputFilename, EncodeParams& params);
+		void BeginEncoding(const std::string& outputFilename, const EncodeParams& params, bool output = true);
 	};
 }

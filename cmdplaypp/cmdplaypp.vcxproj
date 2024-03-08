@@ -156,6 +156,7 @@
     <ClCompile Include="src\FfmpegException.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Stopwatch.cpp" />
+    <ClCompile Include="src\video\FfmpegEncoder.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Asciifier.hpp" />
@@ -167,10 +168,13 @@
     <ClInclude Include="src\VideoEncoder.hpp" />
     <ClInclude Include="src\VideoPlayer.hpp" />
     <ClInclude Include="src\video\DecodedFrame.hpp" />
+    <ClInclude Include="src\video\EncodeContext.hpp" />
+    <ClInclude Include="src\video\EncodeParams.hpp" />
     <ClInclude Include="src\video\FfmpegDecoder.hpp" />
     <ClInclude Include="src\FfmpegException.hpp" />
     <ClInclude Include="src\Stopwatch.hpp" />
     <ClInclude Include="src\Version.hpp" />
+    <ClInclude Include="src\video\FfmpegEncoder.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

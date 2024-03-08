@@ -2,6 +2,7 @@
 #include "Version.hpp"
 #include "VideoPlayer.hpp"
 #include "VideoEncoder.hpp"
+#include "video/EncodeParams.hpp"
 #include "ConsoleUtils.hpp"
 #include <string>
 
@@ -50,12 +51,11 @@ int main(int argc, char* argv[])
 	case 2:
 	{
 		std::string outputFilename;
-		int resX;
-		int resY;
-		if (!cmdplay::VideoEncoder::OpenSettings(outputFilename, &resX, &resY))
+		EncodeParams params;
+		if (!cmdplay::VideoEncoder::OpenSettings(outputFilename, params))
 			break;
 		cmdplay::VideoEncoder encoder(filenameInput, BRIGHTNESS_LEVELS);
-		encoder.BeginEncoding(outputFilename, resX, resY);
+		encoder.BeginEncoding(outputFilename, params);
 	}
 	default:
 		std::cout << "Invalid option!\n";
