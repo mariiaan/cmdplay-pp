@@ -75,10 +75,10 @@ bool cmdplay::video::FfmpegEncoder::Open(const std::string& outputFilename, cons
 		}
 
 		{
-			ret = av_opt_set_int(m_context.codec_context->priv_data, "crf", params.crf, 0);
+			ret = av_opt_set_int(m_context.codec_context->priv_data, "crf", params.constantRateFactor, 0);
 			if (ret != 0)
 			{
-				std::cout << "Could not set crf: " << params.crf << std::endl;
+				std::cout << "Could not set crf: " << params.constantRateFactor << std::endl;
 				break;
 			}
 		}
@@ -215,8 +215,8 @@ bool cmdplay::video::FfmpegEncoder::Write(const unsigned char* data)
 		std::cout << "Error sending frame for encoding" << std::endl;
 		return false;
 	}
-
-	return Flush();
+	
+	return true;
 }
 
 bool cmdplay::video::FfmpegEncoder::Flush()

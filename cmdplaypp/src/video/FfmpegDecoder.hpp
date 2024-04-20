@@ -73,6 +73,8 @@ namespace cmdplay
 			void SkipTo(float playbackTime);
 			void Resize(int width, int height);
 			bool ContainsAudioStream();
+			double GetFPS();
+			bool GetEOF();
 
 		private:
 			std::mutex m_avLock;
@@ -87,6 +89,7 @@ namespace cmdplay
 			AVPacket* m_packet = nullptr;
 			int m_videoStreamIndex = -1;
 			int64_t m_skippedFrames = 0;
+			double m_fps = 1.0f;
 
 			unsigned char* m_mainThreadFramebuffer = nullptr;
 			std::mutex m_mainThreadFramebufferLock;
@@ -108,6 +111,7 @@ namespace cmdplay
 			std::atomic<int> m_width = 0;
 			std::atomic<int> m_height = 0;
 			bool m_containsAudioStream = false;
+			bool m_endOfFile = false;
 
 		private:
 			/// <summary>

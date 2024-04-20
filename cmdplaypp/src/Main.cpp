@@ -37,8 +37,8 @@ int main(int argc, char* argv[])
 	}
 
 	std::cout << "1. Play video\n2. Export asciified video\nSelect Option: ";
-	int option;
-	std::cin >> option;
+	int option = 1;
+	//std::cin >> option;
 	switch (option)
 	{
 	case 1:
@@ -54,8 +54,10 @@ int main(int argc, char* argv[])
 		EncodeParams params;
 		if (!cmdplay::VideoEncoder::OpenSettings(outputFilename, params))
 			break;
+
 		cmdplay::VideoEncoder encoder(filenameInput, BRIGHTNESS_LEVELS);
 		encoder.BeginEncoding(outputFilename, params);
+		break;
 	}
 	default:
 		std::cout << "Invalid option!\n";

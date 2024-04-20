@@ -149,6 +149,9 @@ void cmdplay::video::FfmpegDecoder::LoadVideo(const std::string& src, int width,
 	m_mainThreadFramebuffer =
 		static_cast<unsigned char*>(calloc(m_mainThreadFramebufferSize, sizeof(unsigned char)));
 
+	auto stream = m_formatCtx->streams[m_videoStreamIndex];
+	m_fps = static_cast<double>(stream->r_frame_rate.num) /
+		static_cast<double>(stream->r_frame_rate.den);
 	m_videoLoaded = true;
 }
 
@@ -286,6 +289,16 @@ bool cmdplay::video::FfmpegDecoder::ContainsAudioStream()
 	return m_containsAudioStream;
 }
 
+double cmdplay::video::FfmpegDecoder::GetFPS()
+{
+	return m_fps;
+}
+
+bool cmdplay::video::FfmpegDecoder::GetEOF()
+{
+	return m_endOfFile;
+}
+
 void cmdplay::video::FfmpegDecoder::WorkerThread(FfmpegDecoder* instance)
 {
 	instance->m_workerThreadRunning = true;
@@ -300,11 +313,9 @@ void cmdplay::video::FfmpegDecoder::WorkerThread(FfmpegDecoder* instance)
 		std::lock_guard<std::mutex> avlg{ instance->m_avLock };
 
 		auto stream = instance->m_formatCtx->streams[instance->m_videoStreamIndex];
-		double fps = static_cast<double>(stream->r_frame_rate.num) /
-			static_cast<double>(stream->r_frame_rate.den);
 
 		int64_t shouldFrameIndex = static_cast<int64_t>(
-			fps * static_cast<double>(instance->m_currentTime));
+			instance->m_fps * static_cast<double>(instance->m_currentTime));
 		int64_t decodedFrameIndex = instance->m_codecCtx->frame_num;
 
 		if (shouldFrameIndex > decodedFrameIndex)
@@ -330,7 +341,10 @@ void cmdplay::video::FfmpegDecoder::WorkerThread(FfmpegDecoder* instance)
 						if (ret == AVERROR(EAGAIN)) // Frame is not decoded, try again
 							continue;
 						else if (ret == AVERROR_EOF)
+						{
+							instance->m_endOfFile = true;
 							break;
+						}
 						else if (ret < 0)
 						{
 							std::cout << "[ERROR] avcodec receive frame" << std::endl;

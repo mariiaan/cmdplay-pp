@@ -15,6 +15,6 @@ namespace cmdplay
 
 	public:
 		static bool OpenSettings(std::string& outputFilename, EncodeParams& params);
-		void BeginEncoding(const std::string& outputFilename, const EncodeParams& params, bool output = true);
+		void BeginEncoding(const std::string& outputFilename, EncodeParams params, bool output = true);
 	};
 }

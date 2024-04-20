@@ -24,8 +24,6 @@ namespace cmdplay
 			bool Open(const std::string& outputFilename, const EncodeParams& params);
 			void Close();
 			bool Write(const unsigned char* data);
-
-		private:
 			bool Flush();
 
 		private:
