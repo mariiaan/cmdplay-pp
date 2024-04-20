@@ -17,6 +17,7 @@ cmdplay::video::FfmpegEncoder::~FfmpegEncoder()
 
 bool cmdplay::video::FfmpegEncoder::Open(const std::string& outputFilename, const EncodeParams& params)
 {
+	std::cout << "Opening \"" << outputFilename << "\" for writing...\n";
 	Close();
 
 	do
