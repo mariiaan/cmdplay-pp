@@ -2,6 +2,8 @@
 #include "ColorConverter.hpp"
 #include <iostream>
 #include <algorithm>
+#include <sstream>
+#include <unordered_map>
 
 cmdplay::Asciifier::Asciifier(const std::string& brightnessLevels, int frameWidth, int frameHeight, 
 	bool useColors, bool useColorDithering, bool useTextDithering, bool useAccurateColors, bool useAccurateColorsFullPixel) :
@@ -32,6 +34,15 @@ cmdplay::Asciifier::Asciifier(const std::string& brightnessLevels, int frameWidt
 	
 	m_frameWidthWithStride = m_frameWidth * m_pixelStride;
 	m_targetFramebufferSize = (m_frameWidthWithStride + 1) * m_frameHeight;
+
+	m_frameBuffer = (Pixel*)malloc(m_frameWidth * m_frameHeight * sizeof(Pixel));
+	m_backBuffer = (Pixel*)malloc(m_frameWidth * m_frameHeight * sizeof(Pixel));
+}
+
+cmdplay::Asciifier::~Asciifier()
+{
+	free(m_frameBuffer);
+	free(m_backBuffer);
 }
 
 inline int16_t cmdplay::Asciifier::MapByteToArray(int16_t value)
@@ -129,9 +140,57 @@ inline std::string cmdplay::Asciifier::ByteAsPaddedString(uint8_t i)
 	return out;
 }
 
-inline bool cmdplay::Asciifier::ColorComponentNearlyEquals(uint8_t value, uint8_t other)
+inline bool cmdplay::Asciifier::ColorComponentNearlyEquals(uint8_t value, uint8_t other, uint8_t tolerance)
 {
-	return std::abs(value - other) <= COLOR_BATCHING_TOLERANCE;
+	return std::abs(value - other) <= tolerance;
+}
+
+float cmdplay::Asciifier::CalculateFrameBufferNoisiness()
+{
+	std::unordered_map<uint32_t, uint32_t> colorToOccurences;
+	for (int i = 0; i < m_frameWidth * m_frameHeight; i++)
+	{
+		const uint8_t colorBatchedR = (m_frameBuffer[i].r / COLOR_BATCHING_TOLERANCE) * COLOR_BATCHING_TOLERANCE;
+		const uint8_t colorBatchedG = (m_frameBuffer[i].g / COLOR_BATCHING_TOLERANCE) * COLOR_BATCHING_TOLERANCE;
+		const uint8_t colorBatchedB = (m_frameBuffer[i].b / COLOR_BATCHING_TOLERANCE) * COLOR_BATCHING_TOLERANCE;
+		uint32_t colorInt = colorBatchedR << 24 + colorBatchedG << 16 + colorBatchedB << 8;
+		colorToOccurences[colorInt]++;
+	}
+
+	double entropy = 0.f;
+	for (auto& kvp : colorToOccurences)
+	{
+		double p = (double)(kvp.second) / (m_frameWidth * m_frameHeight);
+		if (p > 0)
+		{
+			entropy -= p * log2(p);
+		}
+	}
+
+	const double linearAlpha = entropy / log2(2 ^ 24); // divide through the maximum amount of colors;
+	const double expoAlpha = 1 - pow(1 - linearAlpha, 1.5f);
+	return expoAlpha;
+}
+
+float cmdplay::Asciifier::CalulateFrameBufferToBackBufferDifference()
+{
+	double differenceR = 0.f;
+	double differenceG = 0.f;
+	double differenceB = 0.f;
+	for (int i = 0; i < m_frameWidth * m_frameHeight; i++)
+	{
+		differenceR += std::abs(m_frameBuffer[i].r - m_backBuffer[i].r);
+		differenceG += std::abs(m_frameBuffer[i].g - m_backBuffer[i].g);
+		differenceB += std::abs(m_frameBuffer[i].b - m_backBuffer[i].b);
+	}
+
+	differenceR /= m_frameWidth * m_frameHeight * 255;
+	differenceG /= m_frameWidth * m_frameHeight * 255;
+	differenceB /= m_frameWidth * m_frameHeight * 255;
+
+	double totalDifference = differenceR + differenceG + differenceB;
+	totalDifference /= 3;
+	return totalDifference;
 }
 
 void cmdplay::Asciifier::ClearDitherErrors(float* buffer)
@@ -161,111 +220,164 @@ void cmdplay::Asciifier::WriteDitherError(int x, int y, float error, float* buff
 	}
 }
 
-std::string cmdplay::Asciifier::BuildFrame(const uint8_t* rgbData)
+std::string cmdplay::Asciifier::BuildFrame(const uint8_t* rgbData, bool fullRedraw)
 {
-	if (m_useColorDithering)
-		ClearDitherErrors(m_hDitherErrors.get());
-
-	if (m_useTextDithering)
-		ClearDitherErrors(m_textDitherErrors.get());
-
-	auto asciiData = std::make_unique<char[]>(m_targetFramebufferSize + 1);
-	char* asciiDataArr = asciiData.get();
-	for (int i = 0, scanX = 0; i < m_targetFramebufferSize; ++i)
-		if (++scanX == m_frameWidthWithStride + 1)
-		{
-			scanX = 0;
-			asciiDataArr[i] = '\n';
-		}
-	
-	// Set null-terminator
-	asciiData[m_targetFramebufferSize] = 0;
-
-	int scanX = 0;
-	int rowOffset = 0;
-	int col = 0;
-	int row = 0;
-	for (int i = 0; i < m_frameSubpixelCount; i += 3)
+	if (m_useColors && m_useAccurateColors)
 	{
-		// Max value = 255.000
-		int32_t pixelBrightness =
-			rgbData[i] * PERCEIVED_LUMINANCE_R_FACTOR +
-			rgbData[i + 1] * PERCEIVED_LUMINANCE_G_FACTOR +
-			rgbData[i + 2] * PERCEIVED_LUMINANCE_B_FACTOR;
+		std::stringstream ss;
 
-		int16_t brightnessIndex;
-		if (m_useTextDithering)
 		{
-			pixelBrightness += static_cast<int>(1000 * m_textDitherErrors[col + row * m_frameWidth]);
-			int16_t trueBrightnessByte = pixelBrightness / 1000;
-			brightnessIndex = MapByteToArray(trueBrightnessByte);
-			int actualBrightnessByte = brightnessIndex * 255 / (m_brightnessLevelCount - 1);
-			float brightnessError = (static_cast<int>(trueBrightnessByte) - actualBrightnessByte) * DITHER_FACTOR;
-			WriteDitherError(col, row, brightnessError, m_textDitherErrors.get());
+			Pixel* temp = m_frameBuffer;
+			m_frameBuffer = m_backBuffer;
+			m_backBuffer = temp;
 		}
-		else
-			brightnessIndex = MapByteToArray(pixelBrightness / 1000);
 
-		if (m_useColors && m_useAccurateColors)
+		bool repositionCursor = false;
+		int lastRow = 0;
+		for (int i = 0; i < m_frameWidth * m_frameHeight; i++)
 		{
-			std::string outString;
+			int32_t pixelBrightness =
+				rgbData[i] * PERCEIVED_LUMINANCE_R_FACTOR +
+				rgbData[i + 1] * PERCEIVED_LUMINANCE_G_FACTOR +
+				rgbData[i + 2] * PERCEIVED_LUMINANCE_B_FACTOR;
 
-			// if the color we have last set rougly equals our current color, 
-			// we don't set our new color to reduce the stress on the console color interpreter
-			if (ColorComponentNearlyEquals(rgbData[i], m_lastSetColor[0]) &&
-				ColorComponentNearlyEquals(rgbData[i + 1], m_lastSetColor[1]) && 
-				ColorComponentNearlyEquals(rgbData[i + 2], m_lastSetColor[2]))
-				outString = "\x1BX000000000000000\x1B\\"; // string message that the console ignores
-			else
-			{
-				if (m_useAccurateColorsFullPixel)
-					outString = "\x1B[48;2;" + ByteAsPaddedString(rgbData[i]) + ";" + 
-					ByteAsPaddedString(rgbData[i + 1]) + ";" + ByteAsPaddedString(rgbData[i + 2]) + "m";
-				else
-					outString = "\x1B[38;2;" + ByteAsPaddedString(rgbData[i]) + ";" + 
-					ByteAsPaddedString(rgbData[i + 1]) + ";" + ByteAsPaddedString(rgbData[i + 2]) + "m";
-				
-				m_lastSetColor[0] = rgbData[i];
-				m_lastSetColor[1] = rgbData[i + 1];
-				m_lastSetColor[2] = rgbData[i + 2];
-			}
-
-			for (int i = 0; i < outString.size(); ++i)
-				asciiDataArr[rowOffset + scanX + i] = outString.at(i);
+			int16_t brightnessIndex = MapByteToArray(pixelBrightness / 1000);
 
 			if (m_useAccurateColorsFullPixel)
-				asciiDataArr[rowOffset + scanX + outString.size()] = ' ';
+				m_frameBuffer[i].c = ' ';
 			else
-				asciiDataArr[rowOffset + scanX + outString.size()] = ToCharUnchecked(brightnessIndex);
+				m_frameBuffer[i].c = ToCharUnchecked(brightnessIndex);
+
+			m_frameBuffer[i].r = rgbData[i * 3];
+			m_frameBuffer[i].g = rgbData[i * 3 + 1];
+			m_frameBuffer[i].b = rgbData[i * 3 + 2];
 		}
-		else if (m_useColors)
+
+		const double frameNoisinessAlpha = CalculateFrameBufferNoisiness();
+		const double frameDifferenceAlpha = CalulateFrameBufferToBackBufferDifference();
+		const double totalAlpha = frameNoisinessAlpha * frameDifferenceAlpha;
+
+		for (int i = 0; i < m_frameWidth * m_frameHeight; i++)
 		{
-			auto color =
-				m_useColorDithering ?
-				GetColorDithered(rgbData[i], rgbData[i + 1], rgbData[i + 2], col, row) :
-				GetColor(rgbData[i], rgbData[i + 1], rgbData[i + 2]);
-			asciiDataArr[rowOffset + scanX] = '\x1B';
-			asciiDataArr[rowOffset + scanX + 1] = '[';
-			asciiDataArr[rowOffset + scanX + 2] = color[0];
-			asciiDataArr[rowOffset + scanX + 3] = color[1];
-			asciiDataArr[rowOffset + scanX + 4] = 'm';
-			asciiDataArr[rowOffset + scanX + 5] = ToChar(brightnessIndex);
+			if (ColorComponentNearlyEquals(m_frameBuffer[i].r, m_backBuffer[i].r, COLOR_REDRAW_TOLERANCE * totalAlpha) &&
+				ColorComponentNearlyEquals(m_frameBuffer[i].g, m_backBuffer[i].g, COLOR_REDRAW_TOLERANCE * totalAlpha) &&
+				ColorComponentNearlyEquals(m_frameBuffer[i].b, m_backBuffer[i].b, COLOR_REDRAW_TOLERANCE * totalAlpha) &&
+				!fullRedraw)
+			{
+				// we skip this pixel as the color on the screen is close enough
+				repositionCursor = true;
+
+				// set the color of the framebuffer back to the color that's on the screen
+				m_frameBuffer[i].c = m_frameBuffer[i].c;
+				m_frameBuffer[i].r = m_frameBuffer[i].r;
+				m_frameBuffer[i].g = m_frameBuffer[i].g;
+				m_frameBuffer[i].b = m_frameBuffer[i].b;
+
+				//ss << "B";
+				continue;
+			}
+
+			if (repositionCursor)
+			{
+				ss << "\x1B[" << std::to_string(i / m_frameWidth + 1) << ";" << std::to_string(i % m_frameWidth + 1) << "H";
+				repositionCursor = false;
+			}
+
+			if (!(ColorComponentNearlyEquals(m_frameBuffer[i].r, m_lastSetColor[0], COLOR_BATCHING_TOLERANCE) &&
+				ColorComponentNearlyEquals(m_frameBuffer[i].g, m_lastSetColor[1], COLOR_BATCHING_TOLERANCE) &&
+				ColorComponentNearlyEquals(m_frameBuffer[i].b, m_lastSetColor[2], COLOR_BATCHING_TOLERANCE)))
+			{
+				ss << "\x1B[48;2;" << std::to_string(m_frameBuffer[i].r) << ";" << std::to_string(m_frameBuffer[i].g) << ";" << std::to_string(m_frameBuffer[i].b) << "m";
+				m_lastSetColor[0] = m_frameBuffer[i].r;
+				m_lastSetColor[1] = m_frameBuffer[i].g;
+				m_lastSetColor[2] = m_frameBuffer[i].b;
+			}
+
+			ss << m_frameBuffer[i].c;
+
+			if (i / m_frameWidth != lastRow)
+			{
+				repositionCursor = true;
+				lastRow = i / m_frameWidth;
+			}
 		}
-		else
-			asciiDataArr[rowOffset + scanX] = m_useTextDithering ? 
+
+		return ss.str();
+	}
+	else // I cant port that shit over man
+	{
+		if (m_useColorDithering)
+			ClearDitherErrors(m_hDitherErrors.get());
+
+		if (m_useTextDithering)
+			ClearDitherErrors(m_textDitherErrors.get());
+
+		auto asciiData = std::make_unique<char[]>(m_targetFramebufferSize + 1);
+		char* asciiDataArr = asciiData.get();
+		for (int i = 0, scanX = 0; i < m_targetFramebufferSize; ++i)
+			if (++scanX == m_frameWidthWithStride + 1)
+			{
+				scanX = 0;
+				asciiDataArr[i] = '\n';
+			}
+
+		// Set null-terminator
+		asciiData[m_targetFramebufferSize] = 0;
+
+		int scanX = 0;
+		int rowOffset = 0;
+		int col = 0;
+		int row = 0;
+		for (int i = 0; i < m_frameSubpixelCount; i += 3)
+		{
+			// Max value = 255.000
+			int32_t pixelBrightness =
+				rgbData[i] * PERCEIVED_LUMINANCE_R_FACTOR +
+				rgbData[i + 1] * PERCEIVED_LUMINANCE_G_FACTOR +
+				rgbData[i + 2] * PERCEIVED_LUMINANCE_B_FACTOR;
+
+			int16_t brightnessIndex;
+			if (m_useTextDithering)
+			{
+				pixelBrightness += static_cast<int>(1000 * m_textDitherErrors[col + row * m_frameWidth]);
+				int16_t trueBrightnessByte = pixelBrightness / 1000;
+				brightnessIndex = MapByteToArray(trueBrightnessByte);
+				int actualBrightnessByte = brightnessIndex * 255 / (m_brightnessLevelCount - 1);
+				float brightnessError = (static_cast<int>(trueBrightnessByte) - actualBrightnessByte) * DITHER_FACTOR;
+				WriteDitherError(col, row, brightnessError, m_textDitherErrors.get());
+			}
+			else
+				brightnessIndex = MapByteToArray(pixelBrightness / 1000);
+
+			if (m_useColors)
+			{
+				auto color =
+					m_useColorDithering ?
+					GetColorDithered(rgbData[i], rgbData[i + 1], rgbData[i + 2], col, row) :
+					GetColor(rgbData[i], rgbData[i + 1], rgbData[i + 2]);
+				asciiDataArr[rowOffset + scanX] = '\x1B';
+				asciiDataArr[rowOffset + scanX + 1] = '[';
+				asciiDataArr[rowOffset + scanX + 2] = color[0];
+				asciiDataArr[rowOffset + scanX + 3] = color[1];
+				asciiDataArr[rowOffset + scanX + 4] = 'm';
+				asciiDataArr[rowOffset + scanX + 5] = ToChar(brightnessIndex);
+			}
+			else
+				asciiDataArr[rowOffset + scanX] = m_useTextDithering ?
 				ToChar(brightnessIndex) : ToCharUnchecked(brightnessIndex);
 
-		scanX += m_pixelStride;
-		++col;
-		if (scanX == m_frameWidthWithStride)
-		{
-			scanX = 0;
-			rowOffset += m_frameWidthWithStride + 1;
-			++row;
-			col = 0;
-			m_lastBrightnessError = 0;
+			scanX += m_pixelStride;
+			++col;
+			if (scanX == m_frameWidthWithStride)
+			{
+				scanX = 0;
+				rowOffset += m_frameWidthWithStride + 1;
+				++row;
+				col = 0;
+				m_lastBrightnessError = 0;
+			}
 		}
-	}
 
-	return std::string(asciiDataArr);
+		return std::string(asciiDataArr);
+	}
 }
