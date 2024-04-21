@@ -5,6 +5,8 @@
 #include <conio.h>
 #include <iostream>
 
+#define COUT_BUFFER_SIZE 1'048'576
+
 cmdplay::VideoPlayer::VideoPlayer(const std::string& filePath, const std::string& brightnessLevels) :
 	m_filePath(filePath), m_brightnessLevels(brightnessLevels)
 {
@@ -44,6 +46,9 @@ void cmdplay::VideoPlayer::Enter()
 	float syncTime = 0.0f;
 	bool playing = true;
 	Stopwatch syncWatch;
+
+	char* coutBuffer = (char*)malloc(COUT_BUFFER_SIZE * sizeof(char));
+	std::cout.rdbuf()->pubsetbuf(coutBuffer, COUT_BUFFER_SIZE);
 
 	while (true)
 	{
@@ -167,8 +172,14 @@ void cmdplay::VideoPlayer::Enter()
 		}
 		cmdplay::ConsoleUtils::SetCursorPosition(0, 0);
 		std::cout << m_asciifier->BuildFrame(nextFrame->m_data);
+		std::cout.flush();
 
 		delete nextFrame;
 	}
+
+	std::cout.rdbuf()->pubsetbuf(nullptr, 0);
+	free(coutBuffer);
+	coutBuffer = nullptr;
 	ConsoleUtils::ShowConsoleCursor(true);
+	
 }
