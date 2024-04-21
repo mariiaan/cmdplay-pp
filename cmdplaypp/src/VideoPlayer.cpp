@@ -5,6 +5,8 @@
 #include <conio.h>
 #include <iostream>
 
+#define COUT_BUFFER_SIZE 1'048'576
+
 cmdplay::VideoPlayer::VideoPlayer(const std::string& filePath, const std::string& brightnessLevels) :
 	m_filePath(filePath), m_brightnessLevels(brightnessLevels)
 {
@@ -44,7 +46,10 @@ void cmdplay::VideoPlayer::Enter()
 	float syncTime = 0.0f;
 	bool playing = true;
 	Stopwatch syncWatch;
+	bool fullRedraw = true;
 
+	char* coutBuffer = (char*)malloc(COUT_BUFFER_SIZE * sizeof(char));
+	std::cout.rdbuf()->pubsetbuf(coutBuffer, COUT_BUFFER_SIZE);
 	while (true)
 	{
 		// for some reason, windows enables the cursor every time we resize, so we should set it each time
@@ -62,6 +67,7 @@ void cmdplay::VideoPlayer::Enter()
 				break;
 			}
 
+			fullRedraw = true;
 			switch (c)
 			{
 			case ' ':
@@ -96,6 +102,7 @@ void cmdplay::VideoPlayer::Enter()
 			{
 				m_accurateColorsEnabled = !m_accurateColorsEnabled;
 				InitAsciifier();
+				fullRedraw = true;
 				if (!m_accurateColorsEnabled)
 				{
 					// Reset colors
@@ -148,6 +155,7 @@ void cmdplay::VideoPlayer::Enter()
 			m_windowHeight = newHeight;
 			m_decoder->Resize(m_windowWidth, m_windowHeight);
 			InitAsciifier();
+			fullRedraw = true;
 		}
 
 		m_decoder->SetPlaybackPosition(syncTime + PREBUFFER_TIME);
@@ -166,9 +174,16 @@ void cmdplay::VideoPlayer::Enter()
 				syncTime = m_audioSource->GetPlaybackTime();
 		}
 		cmdplay::ConsoleUtils::SetCursorPosition(0, 0);
-		std::cout << m_asciifier->BuildFrame(nextFrame->m_data);
+		std::cout << m_asciifier->BuildFrame(nextFrame->m_data, fullRedraw);
+		std::cout.flush();
+		fullRedraw = false;
 
 		delete nextFrame;
 	}
+
+	std::cout.rdbuf()->pubsetbuf(nullptr, 0);
+	free(coutBuffer);
+	coutBuffer = nullptr;
 	ConsoleUtils::ShowConsoleCursor(true);
+	
 }
