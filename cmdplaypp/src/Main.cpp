@@ -2,12 +2,19 @@
 #include "Version.hpp"
 #include "VideoPlayer.hpp"
 #include "ConsoleUtils.hpp"
+#include "COMRAII.hpp"
+#include "AsciiCap.hpp"
 #include <string>
 
 constexpr const char* BRIGHTNESS_LEVELS = " .-+*wGHM#&%";
 
 int main(int argc, char* argv[])
 {
+	COMRAII cr;
+	AsciiCap cap(BRIGHTNESS_LEVELS);
+	cap.Run();
+	return 0;
+
 	std::cout << "cmdplay++ version " << cmdplay::VERSION << std::endl;
 
 	std::string filenameInput;
@@ -33,6 +40,8 @@ int main(int argc, char* argv[])
 		if (filenameInput[filenameInput.length() - 1] == '"')
 			filenameInput = filenameInput.substr(0, filenameInput.length() - 1);
 	}
+
+	
 
 	cmdplay::VideoPlayer player(filenameInput, BRIGHTNESS_LEVELS);
 	player.LoadVideo();

@@ -116,7 +116,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>avcodec.lib;avdevice.lib;avfilter.lib;avformat.lib;avutil.lib;postproc.lib;swresample.lib;swscale.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>avcodec.lib;avdevice.lib;avfilter.lib;avformat.lib;avutil.lib;postproc.lib;swresample.lib;swscale.lib;DirectXTK.lib;d3d11.lib;dxgi.lib;WindowsCodecs.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy $(SolutionDir)lib\dynamic\*.dll $(SolutionDir)x64\Debug</Command>
@@ -136,18 +136,21 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>avcodec.lib;avdevice.lib;avfilter.lib;avformat.lib;avutil.lib;postproc.lib;swresample.lib;swscale.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>avcodec.lib;avdevice.lib;avfilter.lib;avformat.lib;avutil.lib;postproc.lib;swresample.lib;swscale.lib;DirectXTK.lib;d3d11.lib;dxgi.lib;WindowsCodecs.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy $(SolutionDir)lib\dynamic\*.dll $(SolutionDir)x64\Release</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\AsciiCap.cpp" />
     <ClCompile Include="src\Asciifier.cpp" />
     <ClCompile Include="src\audio\FfmpegAudio.cpp" />
     <ClCompile Include="src\ColorConverter.cpp" />
+    <ClCompile Include="src\COMRAII.cpp" />
     <ClCompile Include="src\ConsoleColor.cpp" />
     <ClCompile Include="src\ConsoleUtils.cpp" />
+    <ClCompile Include="src\DXScreenCapture.cpp" />
     <ClCompile Include="src\MiniAudioException.cpp" />
     <ClCompile Include="src\VideoPlayer.cpp" />
     <ClCompile Include="src\video\DecodedFrame.cpp" />
@@ -157,11 +160,14 @@
     <ClCompile Include="src\Stopwatch.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\AsciiCap.hpp" />
     <ClInclude Include="src\Asciifier.hpp" />
     <ClInclude Include="src\audio\FfmpegAudio.hpp" />
     <ClInclude Include="src\ColorConverter.hpp" />
+    <ClInclude Include="src\COMRAII.hpp" />
     <ClInclude Include="src\ConsoleColor.hpp" />
     <ClInclude Include="src\ConsoleUtils.hpp" />
+    <ClInclude Include="src\DXScreenCapture.hpp" />
     <ClInclude Include="src\MiniAudioException.hpp" />
     <ClInclude Include="src\VideoPlayer.hpp" />
     <ClInclude Include="src\video\DecodedFrame.hpp" />
