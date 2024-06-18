@@ -7,7 +7,7 @@ CFLAGS=-c -Wall -Ilib/include/ -std=c++17 -O3 -Dlinux
 all: program
 
 program: FfmpegDecoder.o FfmpegException.o DecodedFrame.o Asciifier.o VideoPlayer.o ConsoleUtils.o ColorConverter.o ConsoleColor.o Main.o FfmpegAudio.o MiniAudioException.o Stopwatch.o
-	$(CC) FfmpegDecoder.o FfmpegException.o DecodedFrame.o FfmpegAudio.o MiniAudioException.o Asciifier.o VideoPlayer.o ConsoleUtils.o ColorConverter.o ConsoleColor.o Main.o Stopwatch.o -o cmdpla -lavcodec -lavformat -lavutil -lswscale -lswresample -lncurses
+	$(CC) FfmpegDecoder.o FfmpegException.o DecodedFrame.o FfmpegAudio.o MiniAudioException.o Asciifier.o VideoPlayer.o ConsoleUtils.o ColorConverter.o ConsoleColor.o Main.o Stopwatch.o -o cmdplay -lavcodec -lavformat -lavutil -lswscale -lswresample -lncurses
 
 # you may have to patch frame_num to frame_number if you got a newer ffmpeg version
 FfmpegDecoder.o: cmdplaypp/src/video/FfmpegDecoder.cpp
