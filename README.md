@@ -19,7 +19,7 @@ Demonstration of high resolution; colours; dithering:
 (Video: [Alexandros] - Dracula La)
 
 Demonstration of true-colour; full-pixel:
-![Screenshot](https://wmf.aomoridev.com/haruka1.png)
+![Screenshot](https://marian.aomoridev.com/projects/cmdplaypp/screenshot3.png)
 (Video: haruka-chan e.1)
 
 # What got better (in comparison to the original project)
@@ -58,7 +58,7 @@ B - full pixel
 - FFmpeg (https://www.ffmpeg.org/)
 
 # License
-This project uses the MIT license. TLDR: You can do whatever you want with the project as long as you include the license and the original copyright message. (LICENSE file)
+The code of this project (cmdplaypp/src) is licensed under the MIT license. TLDR: You can do whatever you want with the code as long as you include the license and the original copyright message. (LICENSE file)
 The project also uses FFmpeg (https://ffmpeg.org/) which is licensed under LGPL 2.1+.
 
 Pull-requests will be reviewed and accepted, please keep your code simple, short and understandable!
