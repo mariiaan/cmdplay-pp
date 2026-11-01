@@ -40,6 +40,10 @@ namespace cmdplay
 		public:
 			AVAudioFifo* m_fifo = nullptr;
 
+			// Frames handed to the device since this instance started playing. Per instance on
+			// purpose: restarting the video builds a new instance, which starts the clock at zero.
+			int m_playedFrames = 0;
+
 		public:
 			void DecodeAll();
 			void PlayASync();

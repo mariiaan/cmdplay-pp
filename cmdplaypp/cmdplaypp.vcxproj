@@ -154,6 +154,7 @@
     <ClCompile Include="src\video\FfmpegDecoder.cpp" />
     <ClCompile Include="src\FfmpegException.cpp" />
     <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\MediaSource.cpp" />
     <ClCompile Include="src\Stopwatch.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -167,6 +168,7 @@
     <ClInclude Include="src\video\DecodedFrame.hpp" />
     <ClInclude Include="src\video\FfmpegDecoder.hpp" />
     <ClInclude Include="src\FfmpegException.hpp" />
+    <ClInclude Include="src\MediaSource.hpp" />
     <ClInclude Include="src\Stopwatch.hpp" />
     <ClInclude Include="src\Version.hpp" />
   </ItemGroup>

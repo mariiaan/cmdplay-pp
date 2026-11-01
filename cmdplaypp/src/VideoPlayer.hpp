@@ -30,8 +30,32 @@ namespace cmdplay
 
 		void InitAsciifier();
 
+		/// <summary>
+		/// Whether playback reached the end. The decoder finishes reading the file long before the
+		/// last frame is shown, so the playback position decides, and containers that don't report
+		/// a duration keep playing until the user quits.
+		/// </summary>
+		bool IsVideoOver(float playbackTime);
+
+		/// <summary>
+		/// Whether the player should start the video over from the beginning.
+		/// </summary>
+		bool m_restartRequested = false;
+
+		/// <summary>
+		/// The hotkey bar that sits in the row below the video. Toggles are green when they
+		/// are on and grey when they are off.
+		/// </summary>
+		std::string BuildHud(bool playing);
+		void DrawHud(bool playing);
+
 	public:
 		void LoadVideo();
 		void Enter();
+
+		/// <summary>
+		/// True when the user asked for a restart, so the video has to be played again.
+		/// </summary>
+		bool WantsRestart() const;
 	};
 }

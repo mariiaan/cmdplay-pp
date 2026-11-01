@@ -74,6 +74,16 @@ namespace cmdplay
 			void Resize(int width, int height);
 			bool ContainsAudioStream();
 
+			/// <summary>
+			/// Whether the video has been decoded to its end.
+			/// </summary>
+			bool IsFinished();
+
+			/// <summary>
+			/// Length of the video in seconds, or 0 when the container doesn't report one.
+			/// </summary>
+			float GetDuration();
+
 		private:
 			std::mutex m_avLock;
 			AVFormatContext* m_formatCtx = nullptr;
@@ -97,6 +107,7 @@ namespace cmdplay
 			std::atomic<float> m_currentTime = 0.0f;
 
 			std::atomic<bool> m_videoLoaded = false;
+			std::atomic<bool> m_finished = false;
 
 			std::thread m_workerThread;
 			std::atomic<bool> m_workerThreadShouldExit = false;

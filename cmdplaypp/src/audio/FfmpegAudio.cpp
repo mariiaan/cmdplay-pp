@@ -7,12 +7,10 @@
 #define MINIAUDIO_IMPLEMENTATION
 #include <miniaudio.h>
 
-int frameCountComplete = 0;
-
 void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount)
 {
-	frameCountComplete += frameCount;
 	cmdplay::audio::FfmpegAudio* instance = reinterpret_cast<cmdplay::audio::FfmpegAudio*>(pDevice->pUserData);
+	instance->m_playedFrames += frameCount;
 	av_audio_fifo_read(instance->m_fifo, &pOutput, frameCount);
 }
 
@@ -25,8 +23,6 @@ cmdplay::audio::FfmpegAudio::FfmpegAudio(const std::string& path)
 	ret = avformat_find_stream_info(format_ctx, nullptr);
 	if (ret < 0)
 		throw FfmpegException("[Audio] Unable to find stream info");
-
-	std::cout << "[Audio] Found streams: " << format_ctx->nb_streams << std::endl;
 
 	streamIndex = av_find_best_stream(format_ctx, AVMEDIA_TYPE_AUDIO, -1, -1, nullptr, 0);
 	if (streamIndex < 0)
@@ -157,5 +153,5 @@ bool cmdplay::audio::FfmpegAudio::IsPlayingBack()
 
 float cmdplay::audio::FfmpegAudio::GetPlaybackTime()
 {
-	return static_cast<float>(frameCountComplete) / static_cast<float>(m_deviceConfig->sampleRate);
+	return static_cast<float>(m_playedFrames) / static_cast<float>(m_deviceConfig->sampleRate);
 }

@@ -24,7 +24,16 @@ void cmdplay::ConsoleUtils::GetWindowSize(int* width, int* height)
 		*height = w.ws_row - 1;
 	#else
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
-	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+	if (!GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi))
+	{
+		// No console window (output redirected): fall back to a sane default instead of
+		// scaling the video to uninitialized numbers.
+		if (width != nullptr)
+			*width = 100;
+		if (height != nullptr)
+			*height = 30;
+		return;
+	}
 
 	if (width != nullptr)
 		*width = csbi.srWindow.Right - csbi.srWindow.Left - 1;

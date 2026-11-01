@@ -137,7 +137,7 @@ void cmdplay::video::FfmpegDecoder::LoadVideo(const std::string& src, int width,
 		width,
 		height,
 		AV_PIX_FMT_RGB24,
-		SWS_BILINEAR,
+		SWS_AREA,
 		nullptr,
 		nullptr,
 		nullptr
@@ -149,6 +149,7 @@ void cmdplay::video::FfmpegDecoder::LoadVideo(const std::string& src, int width,
 	m_mainThreadFramebuffer =
 		static_cast<unsigned char*>(calloc(m_mainThreadFramebufferSize, sizeof(unsigned char)));
 
+	m_finished = false;
 	m_videoLoaded = true;
 }
 
@@ -256,7 +257,7 @@ void cmdplay::video::FfmpegDecoder::Resize(int width, int height)
 		width,
 		height,
 		AV_PIX_FMT_RGB24,
-		SWS_BILINEAR,
+		SWS_AREA,
 		nullptr,
 		nullptr,
 		nullptr
@@ -284,6 +285,20 @@ void cmdplay::video::FfmpegDecoder::Resize(int width, int height)
 bool cmdplay::video::FfmpegDecoder::ContainsAudioStream()
 {
 	return m_containsAudioStream;
+}
+
+bool cmdplay::video::FfmpegDecoder::IsFinished()
+{
+	return m_finished;
+}
+
+float cmdplay::video::FfmpegDecoder::GetDuration()
+{
+	std::lock_guard<std::mutex> lg{ m_avLock };
+	if (m_formatCtx == nullptr || m_formatCtx->duration <= 0)
+		return 0.0f;
+
+	return static_cast<float>(m_formatCtx->duration) / static_cast<float>(AV_TIME_BASE);
 }
 
 void cmdplay::video::FfmpegDecoder::WorkerThread(FfmpegDecoder* instance)
@@ -372,6 +387,8 @@ void cmdplay::video::FfmpegDecoder::WorkerThread(FfmpegDecoder* instance)
 				}
 				av_packet_unref(instance->m_packet);
 			}
+			else
+				instance->m_finished = true; // no more frames to read
 		}
 	}
 	instance->m_workerThreadRunning = false;

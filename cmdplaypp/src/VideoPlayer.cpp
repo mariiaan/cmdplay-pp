@@ -128,9 +128,20 @@ void cmdplay::VideoPlayer::Enter()
 				InitAsciifier();
 				break;
 			}
+			case 'r':
+			{
+				m_restartRequested = true;
+				break;
+			}
 			default: 
 				break;
 			}
+
+			if (m_restartRequested)
+				break; // start over from the first frame
+
+			DrawHud(playing);
+			std::cout.flush();
 
 		}
 
@@ -163,7 +174,12 @@ void cmdplay::VideoPlayer::Enter()
 		m_decoder->SkipTo(syncTime);
 		auto nextFrame = m_decoder->GetNextFrame();
 		if (nextFrame == nullptr)
+		{
+			if (IsVideoOver(syncTime))
+				break; // the video played to its end
+
 			continue;
+		}
 
 		// wait until our frame can be played back
 		while (nextFrame->m_time > syncTime)
@@ -175,6 +191,7 @@ void cmdplay::VideoPlayer::Enter()
 		}
 		cmdplay::ConsoleUtils::SetCursorPosition(0, 0);
 		std::cout << m_asciifier->BuildFrame(nextFrame->m_data, fullRedraw);
+		DrawHud(playing);
 		std::cout.flush();
 		fullRedraw = false;
 
@@ -186,4 +203,76 @@ void cmdplay::VideoPlayer::Enter()
 	coutBuffer = nullptr;
 	ConsoleUtils::ShowConsoleCursor(true);
 	
+}
+
+bool cmdplay::VideoPlayer::IsVideoOver(float playbackTime)
+{
+	if (!m_decoder->IsFinished())
+		return false;
+
+	// The decoder reaches the end of the file as soon as it has read it, usually before the
+	// last frame was shown. Only stop once the video is really over.
+	// Without a known duration the video plays until the user quits.
+	float duration = m_decoder->GetDuration();
+	return duration > 0.0f && playbackTime >= duration - 0.25f;
+}
+
+std::string cmdplay::VideoPlayer::BuildHud(bool playing)
+{
+	constexpr const char* TOGGLE_ON = "[92m";  // green
+	constexpr const char* TOGGLE_OFF = "[90m"; // grey
+	constexpr const char* PLAIN = "[97m";
+	constexpr const char* RESET = "[0m";
+
+	struct Entry
+	{
+		const char* key;
+		const char* label;
+		bool isToggle;
+		bool enabled;
+	};
+
+	Entry entries[] = {
+		{ "SPACE", playing ? "pause" : "play", false, false },
+		{ "C", "colour", true, m_colorsEnabled },
+		{ "D", "col dith", true, m_colorDitheringEnabled },
+		{ "T", "txt dith", true, m_textDitheringEnabled },
+		{ "A", "true col", true, m_accurateColorsEnabled },
+		{ "B", "full px", true, m_accurateColorsFullPixelEnabled },
+		{ "R", "restart", false, false },
+		{ "Q", "quit", false, false },
+	};
+
+	std::string hud;
+	int visibleLength = 0;
+	const int maxLength = m_windowWidth - 1; // never touch the last column
+
+	for (const Entry& entry : entries)
+	{
+		std::string text = std::string(entry.key) + " " + entry.label;
+		if (!hud.empty())
+			text = "   " + text;
+
+		if (visibleLength + static_cast<int>(text.length()) > maxLength)
+			break;
+
+		hud += entry.isToggle ? (entry.enabled ? TOGGLE_ON : TOGGLE_OFF) : PLAIN;
+		hud += text;
+		visibleLength += static_cast<int>(text.length());
+	}
+
+	hud += RESET;
+	hud += "[K"; // wipe anything left over from a wider bar
+	return hud;
+}
+
+void cmdplay::VideoPlayer::DrawHud(bool playing)
+{
+	cmdplay::ConsoleUtils::SetCursorPosition(0, m_windowHeight);
+	std::cout << BuildHud(playing);
+}
+
+bool cmdplay::VideoPlayer::WantsRestart() const
+{
+	return m_restartRequested;
 }
